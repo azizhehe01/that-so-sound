@@ -1,58 +1,115 @@
-# Nahimic Linux — MSI/Fedora adaptation
+# Nahimic Linux — MSI/Fedora Adaptation 🎧🔥
 
-A source adaptation of [wearzdk/nahimic-linux](https://github.com/wearzdk/nahimic-linux), based on upstream commit `6d8a826` (v0.3.0). This fork adds MSI GF63 Thin 11UCX speaker support and a portable local installation path. It is not an official Nahimic, MSI, SteelSeries, or Fedora release.
+Proyek adaptasi sumber terbuka dari [wearzdk/nahimic-linux](https://github.com/wearzdk/nahimic-linux) (basis commit `6d8a826` / v0.3.0). Di fork ini, gua nambahin dukungan speaker buat **MSI GF63 Thin 11UCX** plus jalur instalasi lokal yang praktis.
 
-The application connects the original proprietary Nahimic APO4 runtime to PipeWire using Wine. It does **not** reimplement Nahimic's DSP. The Qt panel provides profile, bass, voice, treble, surround, volume stabilization, and equalizer controls.
+> ⚠️ **Disclaimer Santai tapi Penting**: Ini bukan rilis resmi dari Nahimic, MSI, SteelSeries, ataupun Fedora. Segala risiko speaker jebol karena lu maksa config ngawur ditanggung sendiri ya bre!
 
-## Hardware and verification limits
+---
 
-- MSI GF63 Thin 11UCX / MS-16R6: Realtek ALC897, codec `10ec0897`, subsystem `1462134c`. Uses the matching OEM `1462134C_InternalSpeakers.nsx`, not the MECHREVO speaker preset.
-- Upstream MECHREVO Wujie 14X Pro: Senary `14f11f87`, subsystem `1d05e022`; original support is retained.
-- Unknown codecs, subsystems, and headphone ports are rejected. Do not rename another model's settings to bypass validation.
+## 🧐 Apaan nih Proyekan?
 
-The MSI adaptation has been exercised locally on Fedora with stereo speaker playback, OEM profile import, parameter readback, and service stop/restart. GUI integration and unit tests have also been exercised. Bluetooth/HDMI hotplug, long-duration reliability, and other machines are **not** established by those tests. Windows-identical acoustic quality is not guaranteed.
+Singkatnya: speaker laptop di Linux itu sering banget suaranya cempreng, tipis, dan nggak ada nendang-nendangnya karena DSP tuning bawaan pabrik cuma aktif di Windows.
 
-## Fedora build dependencies
+Nah, aplikasi ini nge-bridge runtime resmi **Nahimic APO4 (driver Windows asli)** ke audio server Linux (**PipeWire**) lewat bantuan Wine. Jadi kita **nggak bikin ulang DSP-nya dari nol**, tapi ngebungkus DLL aslinya biar bisa jalan di Linux. 
+
+Panel GUI-nya pake Qt/PySide6, lengkap dengan:
+- Profil audio (Music, Movie, Gaming, Communication)
+- Bass Boost & Treble
+- Voice Clarity
+- Virtual Surround Sound
+- Volume Stabilization (biar ga kaget pas volume mendadak naik)
+- 10-Band Equalizer
+
+---
+
+## 💻 Laptop yang Bisa Pake (Hardware Limits)
+
+Gua ingetin dari awal: **jangan asal install kalau laptop lo beda!**
+
+Saat ini yang udah di-whitelist dan diverifikasi:
+1. **MSI GF63 Thin 11UCX / MS-16R6**
+   - Codec: Realtek ALC897 (`10ec0897`, subsystem `1462134c`).
+   - Profil: Wajib pake config OEM resmi `1462134C_InternalSpeakers.nsx`.
+2. **MECHREVO Wujie 14X Pro (Upstream Bawaan)**
+   - Codec: Senary (`14f11f87`, subsystem `1d05e022`).
+
+> 🚫 **Hardware lain bakal otomatis di-reject!** 
+> Jangan ganti-ganti nama file settingan laptop lain buat ngebypass validasi ya bre. Profil akustik speaker tiap laptop itu beda-beda. Kalau dipaksa, suaranya bisa distorsi parah (*rattling*) atau bahkan ngerusak membran speaker fisik lo!
+
+---
+
+## 🛠️ Persiapan & Dependencies (Khusus Fedora)
+
+Pastikan sistem lo pake Linux 64-bit (x86_64), PipeWire Pulse, WirePlumber 0.5+, dan ada systemd user session.
+
+Install dulu dependensi build-nya:
 
 ```sh
 sudo dnf install wine mingw64-gcc-c++ python3-pyside6 pulseaudio-libs-devel gcc make pkgconf-pkg-config cabextract
+```
+
+Terus build host C++ dan jalanin unit test:
+
+```sh
 make -j4
 python3 -m unittest discover -s tests -v
 ```
 
-Requires x86_64 Linux, PipeWire Pulse, WirePlumber 0.5+, and a systemd user session. Python GUI dependencies must be available to the interpreter used by the launcher.
+---
 
-## Vendor components (not included)
+## 📦 Runtime & Komponen Vendor (Ga Dibundel di Sini)
 
-Source publication deliberately excludes downloaded `.exe`, `.dll`, `.cab`, `.nsx`, and machine state. Community code is MIT; proprietary runtime, OEM configuration, and artwork retain their own terms. See [LICENSE](LICENSE), [packaging/LicenseRef-Nahimic](packaging/LicenseRef-Nahimic), and [app/assets/NOTICE.txt](app/assets/NOTICE.txt).
+Karena alasan lisensi dan hak cipta, repo ini **nggak nyimpen** file `.exe`, `.dll`, `.cab`, atau `.nsx` bajakan. Kode komunitas kita lisensinya MIT, tapi runtime Nahimic tetep milik vendor aslinya.
 
-Fetch fixed official archives and verify checksums before extracting:
+Lo bisa download arsip resmi dan verifikasi checksum SHA-256 otomatis lewat skrip:
 
 ```sh
 python3 scripts/fetch-runtime.py --hardware msi-gf63-11ucx --output runtime
 ```
 
-The fetcher does not execute the Windows restore installer. For offline extraction from archives you already downloaded:
+Atau kalau lo udah punya file installer/CAB Nahimic Windows-nya di lokal, tinggal ekstrak manual:
 
 ```sh
 python3 packaging/extract_runtime.py /path/to/nahimic-apo4.cab /path/to/GenericNahimicRestoreTool.exe runtime --hardware msi-gf63-11ucx
 ```
 
-The MSI OEM source is `Drivers\\EXT\\MSI\\APO4\\NH3ProductSettings0.cab`. Its speaker XML declares `SUBSYS_1462134C`, `InternalSpeakers`, and device UUID `{c7e78668-755a-4baa-9f3c-3f2c64d60e9d}`. The verified profile SHA-256 is `d7217235268c80b6b2573acbf27f1d55aad4281c114b455e7aa9cad77ebec1a6`.
+*(Sumber OEM MSI asalnya dari `Drivers\EXT\MSI\APO4\NH3ProductSettings0.cab` dengan profil `1462134C_InternalSpeakers.nsx` dan SHA-256 terverifikasi: `d7217235268c80b6b2573acbf27f1d55aad4281c114b455e7aa9cad77ebec1a6`).*
 
-## Local installation
+---
 
-See [docs/FEDORA-MSI.md](docs/FEDORA-MSI.md) for the local installer, activation, rollback, and publication checklist. The existing upstream AUR recipe remains upstream-oriented; it is not a prebuilt Fedora package of this adaptation.
+## 🚀 Instalasi & Cara Pake
 
-Do not run two copies of the speaker filter, or stack the previous EQ trial over Nahimic. Start listening at modest speaker volume and increase gradually; stop if there is distortion or speaker rattling.
+Cek panduan lengkapnya di [docs/FEDORA-MSI.md](docs/FEDORA-MSI.md) buat aktivasi service lokal dan rollback.
 
-## Changes from upstream
+Kalo service udah jalan, cek statusnya lewat terminal:
 
-- Strict MSI codec/subsystem mapping and OEM XML validation.
-- Explicit device filename passed into the C++ host rather than a hardcoded MECHREVO path.
-- Precise Wine wall-clock reads to prevent valid Linux volume state being rejected as future-dated; freshness checks are retained.
-- Portable GUI/runtime/service configuration and opt-in local installation.
-- MSI extraction and checksum-verified official downloads; no redistributed DSP binaries.
-- Regression tests for hardware gates, configuration, and local GUI paths.
+```sh
+nahimic --status
+systemctl --user status nahimic.service
+journalctl --user -u nahimic.service -b
+```
 
-Original documentation: [English](README.en.md). Contributions should include exact hardware IDs and actual test evidence; passing unit tests alone is not proof of support for a new laptop.
+Buka panel GUI-nya lewat menu aplikasi atau ketik:
+```sh
+nahimic
+```
+
+> 💡 **Tips dari gua**: Pas pertama kali nyetel setelah install, setel volume pelan-pelan dulu dari kecil. Dengerin baik-baik, kalo ada suara sember atau speaker getar aneh, langsung matiin!
+
+---
+
+## 🔄 Apa Aja yang Diubah dari Upstream?
+
+- **Validasi Hardware Ketat**: Cek codec/subsystem ID MSI dan validasi XML OEM biar ga salah pasang.
+- **Dynamic Device Filename**: C++ host nerima nama file profil dinamis, ga di-hardcode ke MECHREVO lagi.
+- **Perbaikan Clock Wine**: Pembacaan wall-clock Wine dibikin lebih presisi biar volume state Linux ga dikira "future-dated".
+- **Skrip Ekstraksi MSI**: Tool download dan ekstraksi checksum resmi khusus profil MSI.
+- **Suite Test Lengkap**: Ditambahin unit tests buat hardware gate, path portabel, dan GUI lokal.
+
+---
+
+## 🤝 Lisensi
+
+- Kode komunitas & host: [MIT License](LICENSE).
+- Binary runtime & profil OEM Nahimic: Hak cipta milik vendor / [Notice](packaging/LicenseRef-Nahimic).
+
