@@ -1,65 +1,58 @@
-# Nahimic Linux
+# Nahimic Linux — MSI/Fedora adaptation
 
-**简体中文** | [English](README.en.md)
+A source adaptation of [wearzdk/nahimic-linux](https://github.com/wearzdk/nahimic-linux), based on upstream commit `6d8a826` (v0.3.0). This fork adds MSI GF63 Thin 11UCX speaker support and a portable local installation path. It is not an official Nahimic, MSI, SteelSeries, or Fedora release.
 
-让笔记本扬声器在 Linux 上用上 Nahimic 音效。提供音乐、电影、游戏、通话四种模式，低音、人声、高音、环绕、动态压缩和十段均衡器。支持一键开关对比，音量与系统同步，设置自动保存，关闭面板后音效继续运行。
+The application connects the original proprietary Nahimic APO4 runtime to PipeWire using Wine. It does **not** reimplement Nahimic's DSP. The Qt panel provides profile, bass, voice, treble, surround, volume stabilization, and equalizer controls.
 
-这是独立的社区项目，与 Nahimic、A-Volute、SteelSeries 及电脑厂商无隶属关系，也未获其认可或赞助。名称、商标和原厂资源归各自权利人所有。
+## Hardware and verification limits
 
-*An independent community project, not affiliated with, endorsed by, or sponsored by Nahimic, A-Volute, SteelSeries, or PC manufacturers.*
+- MSI GF63 Thin 11UCX / MS-16R6: Realtek ALC897, codec `10ec0897`, subsystem `1462134c`. Uses the matching OEM `1462134C_InternalSpeakers.nsx`, not the MECHREVO speaker preset.
+- Upstream MECHREVO Wujie 14X Pro: Senary `14f11f87`, subsystem `1d05e022`; original support is retained.
+- Unknown codecs, subsystems, and headphone ports are rejected. Do not rename another model's settings to bypass validation.
 
-![Nahimic Linux 控制面板](docs/panel.png)
+The MSI adaptation has been exercised locally on Fedora with stereo speaker playback, OEM profile import, parameter readback, and service stop/restart. GUI integration and unit tests have also been exercised. Bluetooth/HDMI hotplug, long-duration reliability, and other machines are **not** established by those tests. Windows-identical acoustic quality is not guaranteed.
 
-## 安装
-
-Arch Linux 及衍生发行版：
-
-```sh
-yay -S nahimic-linux
-```
-
-也可以使用 `paru -S nahimic-linux`。安装会自动下载所需运行组件、匹配扬声器并启动音效。安装完成后，从应用菜单打开 **Nahimic 音效**，或运行 `nahimic`。首次准备运行环境需要稍等片刻。
-
-目前已验证机械革命无界 14X Pro（Senary 声卡，子系统 ID `1D05E022`）的内置扬声器。需要 x86_64、PipeWire、PipeWire Pulse、WirePlumber 0.5 或更新版本，以及 systemd 用户会话。界面使用 Qt，支持 KDE、GNOME 及其他提供上述组件的桌面环境。音效自动附着于内置扬声器，系统中照常选择真实输出设备。切换到耳机、蓝牙或 HDMI 时使用对应设备的原有音频路径；切回扬声器后自动恢复音效。
-
-## 让 AI 帮你安装或适配
-
-可以直接把下面这段话发给 Claude Code、Codex 等 AI 编程助手：
-
-> 阅读 https://github.com/wearzdk/nahimic-linux ，按照 AGENTS.md 检查我的系统和声卡，安装并验证 Nahimic Linux。若型号不一致，请检查现有设备配置，完成本机测试后提交 PR，帮助更多人使用。
-
-下方说明主要供 AI 助手、维护者和需要排查问题的用户参考。
-
-## 使用与排查
-
-面板顶部的开关可即时切换音效与原声。点击「均衡器」打开十段调节窗口；在「设置」中调整开机启动和界面语言。窗口支持拖动标题栏、双击最大化及拖动边缘缩放。
-
-界面支持简体中文、繁体中文、英语、日语、韩语、德语、法语、西班牙语、葡萄牙语、意大利语、俄语和土耳其语。默认跟随系统语言，也可手动选择；切换立即生效并自动保存，不影响正在播放的音效。不支持的系统语言使用英语。
-
-翻译文件位于 `app/locales/`。欢迎修正用词或贡献新语言，新增翻译须包含现有全部条目和格式占位符，并检查长文本在最小窗口下的显示。
+## Fedora build dependencies
 
 ```sh
-nahimic --status
-systemctl --user status nahimic.service
-journalctl --user -u nahimic.service -b
+sudo dnf install wine mingw64-gcc-c++ python3-pyside6 pulseaudio-libs-devel gcc make pkgconf-pkg-config cabextract
+make -j4
+python3 -m unittest discover -s tests -v
 ```
 
-音效开关只控制内置扬声器；系统默认输出和应用单独选择的设备由系统管理。设置保存在 `${XDG_DATA_HOME:-~/.local/share}/nahimic-linux/`。
+Requires x86_64 Linux, PipeWire Pulse, WirePlumber 0.5+, and a systemd user session. Python GUI dependencies must be available to the interpreter used by the launcher.
 
-## 构建与安装
+## Vendor components (not included)
 
-AUR 的 `PKGBUILD` 位于 `packaging/`。构建依赖 MinGW-w64 GCC、C 编译器、pkg-config、libpulse、Python 和 cabextract。运行依赖 Wine、PySide6、PipeWire、PipeWire Pulse、WirePlumber 0.5+、libpulse、systemd。
+Source publication deliberately excludes downloaded `.exe`, `.dll`, `.cab`, `.nsx`, and machine state. Community code is MIT; proprietary runtime, OEM configuration, and artwork retain their own terms. See [LICENSE](LICENSE), [packaging/LicenseRef-Nahimic](packaging/LicenseRef-Nahimic), and [app/assets/NOTICE.txt](app/assets/NOTICE.txt).
+
+Fetch fixed official archives and verify checksums before extracting:
 
 ```sh
-git clone https://aur.archlinux.org/nahimic-linux.git
-cd nahimic-linux
-makepkg -si
+python3 scripts/fetch-runtime.py --hardware msi-gf63-11ucx --output runtime
 ```
 
-构建会从 Microsoft Update 和 Nahimic 官方支持站点获取固定版本组件，并验证归档及实际使用文件的 SHA-256。界面与宿主程序通过 `make` 构建，`make DESTDIR=/tmp/nahimic-stage install` 可检查系统包目录布局。完整安装以 PKGBUILD 为准。
+The fetcher does not execute the Windows restore installer. For offline extraction from archives you already downloaded:
 
-## 贡献设备适配
+```sh
+python3 packaging/extract_runtime.py /path/to/nahimic-apo4.cab /path/to/GenericNahimicRestoreTool.exe runtime --hardware msi-gf63-11ucx
+```
 
-请先阅读 [AGENTS.md](AGENTS.md)。提交机器型号、声卡硬件 ID、PipeWire 输出信息，以及音效开关、参数保存、服务重启和连续播放的测试结果。每个型号使用与硬件匹配的配置，新增支持以本机验证为依据。
+The MSI OEM source is `Drivers\\EXT\\MSI\\APO4\\NH3ProductSettings0.cab`. Its speaker XML declares `SUBSYS_1462134C`, `InternalSpeakers`, and device UUID `{c7e78668-755a-4baa-9f3c-3f2c64d60e9d}`. The verified profile SHA-256 is `d7217235268c80b6b2573acbf27f1d55aad4281c114b455e7aa9cad77ebec1a6`.
 
-本项目为社区维护项目，未与 Nahimic、SteelSeries 或电脑厂商建立隶属关系。项目代码使用 MIT 许可证；下载的运行组件适用其原有许可。Nahimic 名称及相关商标归其权利人所有。
+## Local installation
+
+See [docs/FEDORA-MSI.md](docs/FEDORA-MSI.md) for the local installer, activation, rollback, and publication checklist. The existing upstream AUR recipe remains upstream-oriented; it is not a prebuilt Fedora package of this adaptation.
+
+Do not run two copies of the speaker filter, or stack the previous EQ trial over Nahimic. Start listening at modest speaker volume and increase gradually; stop if there is distortion or speaker rattling.
+
+## Changes from upstream
+
+- Strict MSI codec/subsystem mapping and OEM XML validation.
+- Explicit device filename passed into the C++ host rather than a hardcoded MECHREVO path.
+- Precise Wine wall-clock reads to prevent valid Linux volume state being rejected as future-dated; freshness checks are retained.
+- Portable GUI/runtime/service configuration and opt-in local installation.
+- MSI extraction and checksum-verified official downloads; no redistributed DSP binaries.
+- Regression tests for hardware gates, configuration, and local GUI paths.
+
+Original documentation: [English](README.en.md). Contributions should include exact hardware IDs and actual test evidence; passing unit tests alone is not proof of support for a new laptop.

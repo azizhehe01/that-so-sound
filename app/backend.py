@@ -6,10 +6,9 @@ import re
 import subprocess
 import sys
 
-DATA = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local/share")) / "nahimic-linux"
-RUNTIME = DATA / "runtime"
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "host"))
 from desktop_audio import atomic_json, pulse
+from paths import ROOT, DATA, RUNTIME, SHARE, SERVICE
 
 PROFILES = {
     "Music": ("音乐", "77f15d10-d6b9-11e7-8f1a-0800200c9a66"),
@@ -21,8 +20,8 @@ PROFILES = {
 
 class Backend:
     def control(self, *args):
-        api = "Z:" + str(Path("/usr/share/nahimic-linux/vendor/NahimicAPO4API.dll")).replace("/", "\\")
-        result = subprocess.run(["wine", str(Path(__file__).resolve().parents[1] / "bin/apo_control.exe"), api, *args],
+        api = "Z:" + str((SHARE / "vendor/NahimicAPO4API.dll")).replace("/", "\\")
+        result = subprocess.run(["wine", str(ROOT / "bin/apo_control.exe"), api, *args],
                                 env=os.environ | {"WINEPREFIX": str(RUNTIME / "prefix"), "WINEDEBUG": "-all",
                                                   "WINEDLLOVERRIDES": "mscoree,mshtml="},
                                 capture_output=True, text=True, timeout=15)
@@ -76,13 +75,13 @@ class Backend:
         pulse("set-sink-mute", target, str(int(value)))
 
     def autostart(self, enabled):
-        subprocess.run(["systemctl", "--user", "enable" if enabled else "disable", "nahimic.service"],
+        subprocess.run(["systemctl", "--user", "enable" if enabled else "disable", SERVICE],
                        check=True, capture_output=True, text=True, timeout=10)
 
     def status(self):
-        service = subprocess.run(["systemctl", "--user", "is-active", "nahimic.service"],
+        service = subprocess.run(["systemctl", "--user", "is-active", SERVICE],
                                  capture_output=True, text=True, timeout=5).stdout.strip()
-        auto = subprocess.run(["systemctl", "--user", "is-enabled", "nahimic.service"],
+        auto = subprocess.run(["systemctl", "--user", "is-enabled", SERVICE],
                               capture_output=True, text=True, timeout=5).returncode == 0
         result = {"ready": False, "service": service, "autostart": auto}
         status_path = RUNTIME / "desktop-state.json"

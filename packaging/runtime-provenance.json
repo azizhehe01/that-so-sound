@@ -1,0 +1,10 @@
+{
+  "msi-gf63-11ucx": {
+    "settings_archive_sha256": "5f9c4d9eda54b7f946e331740354f01c043f25408d7053b4c23327c1b5b0a74a",
+    "cab_member": "Drivers\\EXT\\MSI\\APO4\\NH3ProductSettings0.cab",
+    "cab_sha256": "05fe77412dfa9cb0280ab64cbc1af1ee60491d59ed22d532edcdcd20e0ae04b5",
+    "manifest": "runtime-msi-gf63-11ucx-sha256.json",
+    "method": "Factory file hashes computed from cabextract output of the MSI CAB read from the complete official archive after verifying its SHA-256. Vendor file hashes preserved from runtime-sha256.json and independently verified against the pinned Microsoft Update CAB.",
+    "license_notice": "Downloaded runtime DLLs and factory NSX settings are proprietary and retain their original vendor licenses. This repository contains hashes only, not those files; this utility grants no redistribution rights."
+  }
+}

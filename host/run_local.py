@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import signal
+import re
 import subprocess
 import tempfile
 import time
@@ -14,7 +15,35 @@ from prepare_settings import prepare
 
 def wine_path(path):
     return 'Z:' + str(path).replace('/', '\\')
-from desktop_audio import DesktopAudio, OutputUnavailable, supported_speaker
+from desktop_audio import DesktopAudio, OutputUnavailable, supported_speaker, speaker_profile, SPEAKER_PROFILES
+
+def validate_device(settings, filename):
+    """Validate OEM identity, not its provenance (use verified OEM archives)."""
+    if filename not in SPEAKER_PROFILES.values():
+        raise ValueError('Unsupported OEM device filename')
+    path = settings / 'Devices' / filename
+    if not path.is_file():
+        raise ValueError(f'Matching OEM speaker settings missing: {filename}')
+    try:
+        root = ET.parse(path).getroot()
+    except ET.ParseError as error:
+        raise ValueError(f'Malformed OEM speaker settings: {filename}') from error
+    device = root.findtext('Data/ID/Value', '')
+    subsystem = filename.split('_', 1)[0]
+    form = root.findtext('Data/FormFactor/Value', '')
+    if (root.tag != 'nhSettings' or root.find('Settings') is None
+            or root.findtext('Data/HWID/Value', '').upper() != f'SUBSYS_{subsystem}'
+            or form not in ('Speakers', 'InternalSpeakers')
+            or not re.fullmatch(r'\{[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}\}', device)):
+        raise ValueError(f'OEM speaker identity or structure mismatch: {filename}')
+    return device
+
+
+def configuration_args(settings, device_file, device, profile, reuse):
+    if reuse:
+        return ['--use-existing-settings']
+    return ['--settings-root', wine_path(settings), '--device-file', device_file,
+            '--device-id', device, '--profile-id', profile]
 
 def linked_channels(listing, sink, target, monitor=None, render=True):
     """Require both directed stereo connections, including port identities."""
@@ -62,8 +91,10 @@ def main():
     if len(matches) != 1:
         raise OutputUnavailable('The configured speaker output is unavailable')
     target = matches[0]
-    if not supported_speaker(target):
-        raise RuntimeError('This launcher currently verifies only the original 1D05E022 speaker endpoint')
+    device_file = speaker_profile(target)
+    if device_file is None:
+        raise RuntimeError('Unsupported built-in speaker hardware or inactive speaker port')
+    device = validate_device(original, device_file)
     dll_sha256 = hashlib.sha256(dll.read_bytes()).hexdigest()
     if args.reuse_session:
         previous_path = args.reuse_session.resolve(strict=True)
@@ -83,7 +114,8 @@ def main():
         if settings.exists():
             settings.rename(work / ('settings-previous-' + str(time.time_ns())))
         prepare(original, settings)
-    device = ET.parse(settings / 'Devices' / '1D05E022_Speakers.nsx').findtext('Data/ID/Value')
+    if validate_device(settings, device_file) != device:
+        raise ValueError('Runtime device identifier does not match OEM settings')
     profile_name = args.profile or 'Music'
     profile = ET.parse(settings / 'AudioProfiles' / f'{profile_name}.nsx').findtext('Data/ID/Value')
     if not device or not profile:
@@ -94,7 +126,7 @@ def main():
     module = None
     desktop = None
     stopping = False
-    state = {'pid': os.getpid(), 'target': args.target, 'profile': None if args.reuse_session else profile_name, 'reused_settings': bool(args.reuse_session), 'settings_initialized': bool(args.reuse_session), 'original_dll_sha256': dll_sha256, 'sink': sink, 'work': str(work), 'target_before': target, 'ready': False}
+    state = {'device_file': device_file, 'device_id': device, 'pid': os.getpid(), 'target': args.target, 'profile': None if args.reuse_session else profile_name, 'reused_settings': bool(args.reuse_session), 'settings_initialized': bool(args.reuse_session), 'original_dll_sha256': dll_sha256, 'sink': sink, 'work': str(work), 'target_before': target, 'ready': False}
     state_path = work / 'session.json'
 
     def save():
@@ -143,7 +175,7 @@ def main():
                 raise TimeoutError('Native endpoint state initialization')
             time.sleep(0.05)
         state['volume_state'] = str(volume_path)
-        configuration = ['--use-existing-settings'] if args.reuse_session else ['--settings-root', wine_path(settings), '--device-id', device, '--profile-id', profile]
+        configuration = configuration_args(settings, device_file, device, profile, bool(args.reuse_session))
         host = start('host', ['wine', str(exe), wine_path(dll), '--wine-setup-compat', '--class', 'CHAIN', *configuration, '--pulse-target', args.target, '--volume-state', wine_path(volume_path), '--stdio'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=0)
         deadline = time.monotonic() + 45
         while 'stream_ready' not in (work / 'host.log').read_text(errors='replace'):
@@ -239,6 +271,7 @@ def main():
         state.update(ready=False, stopped=True, clean_shutdown=success, exit_codes={name: child.returncode for name, child in children.items()})
         save()
         print(f'Stopped; evidence: {state_path}', flush=True)
+        session_lock.close()
         if cleanup_error:
             raise RuntimeError(cleanup_error)
 if __name__ == '__main__':

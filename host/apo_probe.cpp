@@ -19,6 +19,7 @@
 #include "control_abi.hpp"
 #include "native_volume.hpp"
 #include "dedicated_prefix.hpp"
+#include "device_filename.hpp"
 
 struct IAudioMediaType;
 struct Registration {
@@ -203,7 +204,7 @@ static bool product_ready(bool& ready){
     status("ReadProductReady",HRESULT_FROM_WIN32(result));if(result!=ERROR_SUCCESS)return false;
     ready=value==1;return true;
 }
-static bool configure_original(const wchar_t* apo_path,const wchar_t* root,const wchar_t* manual_device,const wchar_t* profile_id,HMODULE& library,ExpertControl*& expert) {
+static bool configure_original(const wchar_t* apo_path,const wchar_t* root,const wchar_t* manual_device,const wchar_t* profile_id,const wchar_t* device_file,HMODULE& library,ExpertControl*& expert) {
     if(!dedicated_prefix()){
         std::fprintf(stderr,"Configuration requires a dedicated Nahimic Wine prefix.\n");return false;
     }
@@ -229,7 +230,9 @@ static bool configure_original(const wchar_t* apo_path,const wchar_t* root,const
     BSTR product=SysAllocString(L"A-Volute.Nahimic");if(!product)return false;
     hr=expert->Setup(product);SysFreeString(product);status("ExpertSetup",hr);if(FAILED(hr))return false;
     if(!root)return true;
-    const wchar_t* files[]={L"Global.nsx",L"Devices\\1D05E022_Speakers.nsx",L"AudioProfiles\\Music.nsx",L"AudioProfiles\\Movie.nsx",L"AudioProfiles\\Gaming.nsx",L"AudioProfiles\\Communication.nsx"};
+    if(!valid_device_filename(device_file))return false;
+    std::wstring device_path = L"Devices\\" + std::wstring(device_file);
+    const wchar_t* files[]={L"Global.nsx",device_path.c_str(),L"AudioProfiles\\Music.nsx",L"AudioProfiles\\Movie.nsx",L"AudioProfiles\\Gaming.nsx",L"AudioProfiles\\Communication.nsx"};
     for(unsigned i: {1u,2u,3u,4u,5u,0u}){
         if(i==0 && !initialize_profile_links(apo_path,profile_id))return false;
         path=std::wstring(root)+L"\\"+files[i];BSTR file=SysAllocString(path.c_str());if(!file)return false;
@@ -379,6 +382,7 @@ int wmain(int argc, wchar_t** argv) {
     const wchar_t* input_path=nullptr;
     const wchar_t* settings_root=nullptr;
     const wchar_t* device_id=nullptr;
+    const wchar_t* device_file=nullptr;
     const wchar_t* profile_id=nullptr;
     const wchar_t* pulse_target=nullptr;
     const wchar_t* volume_state_path=nullptr;
@@ -396,6 +400,7 @@ int wmain(int argc, wchar_t** argv) {
         else if (wcscmp(argv[a],L"--process-pcm")==0 && a+1<argc) { if(pcm_path)invalid=true;pcm_path=argv[++a];discover=true;processing_file=true; }
         else if (wcscmp(argv[a],L"--settings-root")==0 && a+1<argc) settings_root=argv[++a];
         else if (wcscmp(argv[a],L"--use-existing-settings")==0) existing_settings=true;
+        else if (wcscmp(argv[a],L"--device-file")==0 && a+1<argc) device_file=argv[++a];
         else if (wcscmp(argv[a],L"--device-id")==0 && a+1<argc) device_id=argv[++a];
         else if (wcscmp(argv[a],L"--profile-id")==0 && a+1<argc) profile_id=argv[++a];
         else if (wcscmp(argv[a],L"--pulse-target")==0 && a+1<argc) pulse_target=argv[++a];
@@ -416,7 +421,8 @@ int wmain(int argc, wchar_t** argv) {
     if (stdio_stream && (selected<0 || pcm_path || input_path)) invalid=true;
     if (processing_file!=(input_path!=nullptr)) invalid=true;
     if ((device_id || profile_id) && !settings_root) invalid=true;
-    if (settings_root && !profile_id) invalid=true;
+    if (settings_root && (!profile_id || !valid_device_filename(device_file))) invalid=true;
+    if (device_file && !settings_root) invalid=true;
     if(existing_settings && settings_root)invalid=true;
     GUID selected_profile{};
     if (profile_id && FAILED(CLSIDFromString(profile_id,&selected_profile))) invalid=true;
@@ -441,7 +447,7 @@ int wmain(int argc, wchar_t** argv) {
         std::fprintf(stderr,"Cannot bind native endpoint volume state\n");CoUninitialize();return 1;
     }
     HMODULE expert_library=nullptr;ExpertControl* expert=nullptr;
-    if ((settings_root || existing_settings) && !configure_original(argv[1],settings_root,device_id,profile_id,expert_library,expert)) {
+    if ((settings_root || existing_settings) && !configure_original(argv[1],settings_root,device_id,profile_id,device_file,expert_library,expert)) {
         if(expert)expert->Release();
         if(expert_library)FreeLibrary(expert_library);
         CoUninitialize();return 1;

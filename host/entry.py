@@ -9,10 +9,7 @@ import sys
 import time
 from desktop_audio import atomic_json, pulse, supported_speaker
 
-ROOT = Path(__file__).resolve().parents[1]
-DATA = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local/share")) / "nahimic-linux"
-RUNTIME = DATA / "runtime"
-SHARE = Path("/usr/share/nahimic-linux")
+from paths import ROOT, DATA, RUNTIME, SHARE, SERVICE
 MARKER = "nahimic-linux-v1\n"
 
 
@@ -20,7 +17,7 @@ def detect():
     sinks = json.loads(pulse("--format=json", "list", "sinks"))
     matches = [s for s in sinks if supported_speaker(s)]
     if len(matches) != 1:
-        raise RuntimeError("未找到受支持的内置扬声器（1D05E022）。请选择扬声器输出后重试。")
+        raise RuntimeError("未找到受支持的内置扬声器。请选择扬声器输出后重试。")
     return matches[0]["name"]
 
 
@@ -54,7 +51,7 @@ def migrate_local():
     unit = Path.home() / ".config/systemd/user/nahimic.service"
     if not unit.is_file() or str(DATA / "current/host/run_local.py") not in unit.read_text():
         return
-    systemctl("disable", "--now", "nahimic.service")
+    systemctl("disable", "--now", SERVICE)
     backup = DATA / ("local-backup-" + str(time.time_ns()))
     backup.mkdir()
     unit.rename(backup / unit.name)
@@ -70,15 +67,16 @@ def migrate_local():
 
 def activate():
     initialize()
-    migrate_local()
+    if SERVICE == "nahimic.service" and SHARE == Path("/usr/share/nahimic-linux"):
+        migrate_local()
     systemctl("daemon-reload")
     first = not (DATA / "activated").exists()
     if first:
-        systemctl("enable", "nahimic.service")
+        systemctl("enable", SERVICE)
         (DATA / "activated").write_text(MARKER)
-    enabled = subprocess.run(["systemctl", "--user", "is-enabled", "--quiet", "nahimic.service"]).returncode == 0
+    enabled = subprocess.run(["systemctl", "--user", "is-enabled", "--quiet", SERVICE]).returncode == 0
     if enabled:
-        systemctl("restart", "nahimic.service")
+        systemctl("restart", SERVICE)
 
 
 def serve():
@@ -130,6 +128,7 @@ def main():
     modes = parser.add_mutually_exclusive_group()
     for name in ("service", "activate", "autostart", "status"):
         modes.add_argument("--" + name, action="store_true")
+    parser.add_argument("--local", action="store_true", help="Open GUI without activation or legacy migration")
     args = parser.parse_args()
     if args.status:
         sys.path.insert(0, str(ROOT / "app"))
@@ -143,7 +142,7 @@ def main():
         if not (DATA / "activated").exists():
             activate()
     else:
-        if not (DATA / "activated").exists():
+        if not args.local and not (DATA / "activated").exists():
             activate()
         os.execv(sys.executable, [sys.executable, str(ROOT / "app/main.py")])
 

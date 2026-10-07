@@ -12,7 +12,7 @@ from PySide6.QtGui import QIcon, QPainter, QColor, QPen, QPixmap, QFont, QLinear
 from PySide6.QtNetwork import QLocalServer, QLocalSocket
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QCheckBox, QSlider, QFrame, QDialog, QToolButton, QButtonGroup, QSizePolicy, QStyle, QStyleOptionToolButton, QStylePainter, QComboBox, QMessageBox)
-from backend import Backend, DATA, PROFILES
+from backend import Backend, DATA, PROFILES, SERVICE
 from i18n import Translations, LANGUAGES
 from window_frame import decorate
 
@@ -514,7 +514,7 @@ def main():
         return
     QLocalServer.removeServer(socket_name);server=QLocalServer()
     if not server.listen(socket_name):raise RuntimeError(server.errorString())
-    subprocess.run(['systemctl','--user','start','nahimic.service'],check=True,timeout=15)
+    subprocess.run(['systemctl','--user','start',SERVICE],check=True,timeout=15)
     panel=Panel()
     def activate():
         connection=server.nextPendingConnection();connection.close();connection.deleteLater()

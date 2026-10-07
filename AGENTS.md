@@ -1,5 +1,10 @@
 # AI 安装与维护指南
 
+## MSI/Fedora adaptation notes
+
+This source tree is an adaptation, not a prebuilt AUR/Fedora release. Read README.md and docs/FEDORA-MSI.md first. MSI GF63 Thin 11UCX support requires the exact codec/subsystem `HDA:10ec0897,1462134c,` and the genuine `1462134C_InternalSpeakers.nsx` OEM configuration. Do not reuse or rename the MECHREVO profile. Do not publish downloaded vendor binaries, OEM settings, user runtime state, or Wine prefixes. Local installation and live hardware tests must be explicitly distinguished from unit/build tests. Preserve existing user installations when preparing source for publication.
+
+
 先阅读 README.md。用户要求安装时，检查本机依赖和设备后完成安装与验证。
 
 ## 安装路径

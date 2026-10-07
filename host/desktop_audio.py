@@ -24,9 +24,24 @@ class OutputUnavailable(RuntimeError):
     """The configured speaker endpoint is temporarily unavailable."""
 
 
+# Recognition is not proof of OEM settings availability or hardware validation.
+SPEAKER_PROFILES = {
+    ('14f11f87', '1d05e022'): '1D05E022_Speakers.nsx',
+    ('10ec0897', '1462134c'): '1462134C_InternalSpeakers.nsx',
+}
+
+
+def speaker_profile(sink):
+    if sink.get('active_port') != '[Out] Speaker':
+        return None
+    components = sink.get('properties', {}).get('alsa.components', '').lower().split()
+    matches = {filename for (codec, subsystem), filename in SPEAKER_PROFILES.items()
+               if any(token.startswith(f'hda:{codec},{subsystem},') for token in components)}
+    return matches.pop() if len(matches) == 1 else None
+
+
 def supported_speaker(sink):
-    return ("hda:14f11f87,1d05e022," in sink.get("properties", {}).get("alsa.components", "").lower()
-            and sink.get("active_port") == "[Out] Speaker")
+    return speaker_profile(sink) is not None
 
 
 class DesktopAudio:

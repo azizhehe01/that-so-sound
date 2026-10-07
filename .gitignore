@@ -1,5 +1,32 @@
 __pycache__/
-*.pyc
+*.py[cod]
 /bin/
 /runtime/
+/build/
+/dist/
+.venv/
+.pytest_cache/
 *.pkg.tar.*
+
+# Downloaded vendor runtime/settings: never publish proprietary packages.
+*.exe
+*.dll
+*.cab
+*.nsx
+*.inf
+*.zip
+*.tar.gz
+/oem-settings-cabs/
+/downloads/
+
+# Local installation, machine state, and credentials.
+.env
+.env.*
+!.env.example
+*session.json
+*desktop-state.json
+*native-volume.state
+baseline-sinks.json
+source-changes.patch
+range-headers.txt
+range-test.bin
