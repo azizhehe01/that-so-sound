@@ -1,73 +1,104 @@
-# Nahimic Linux — MSI/Fedora Adaptation 🎧🔥
+<div align="center">
 
-Proyek adaptasi sumber terbuka dari [wearzdk/nahimic-linux](https://github.com/wearzdk/nahimic-linux) (basis commit `6d8a826` / v0.3.0). Di fork ini, gua nambahin dukungan speaker buat **MSI GF63 Thin 11UCX** plus jalur instalasi lokal yang praktis.
+  <img src="docs/animated-banner.svg" alt="That's So Sound Banner" width="100%" />
 
-> ⚠️ **Disclaimer Santai tapi Penting**: Ini bukan rilis resmi dari Nahimic, MSI, SteelSeries, ataupun Fedora. Segala risiko speaker jebol karena lu maksa config ngawur ditanggung sendiri ya bre!
+  <br/><br/>
+
+  <p>
+    <a href="#-fitur-unggulan"><img src="https://img.shields.io/badge/Platform-Linux%20x86__64-fc77a6?style=for-the-badge&logo=linux&logoColor=white" alt="Platform Linux" /></a>
+    <a href="#-arsitektur-cara-kerja"><img src="https://img.shields.io/badge/Audio%20Server-PipeWire%20%2B%20Wine-7fffff?style=for-the-badge&logo=alpinelinux&logoColor=120e18" alt="PipeWire Audio" /></a>
+    <a href="#-persiapan--build"><img src="https://img.shields.io/badge/GUI-PySide6%20Qt-ff3366?style=for-the-badge&logo=qt&logoColor=white" alt="PySide6 Qt" /></a>
+    <a href="#-hardware-limits"><img src="https://img.shields.io/badge/Verified-MSI%20GF63%2011UCX-fc77a6?style=for-the-badge&logo=msi&logoColor=white" alt="MSI GF63" /></a>
+    <a href="#-lisensi"><img src="https://img.shields.io/badge/License-MIT-7fffff?style=for-the-badge&logoColor=120e18" alt="License MIT" /></a>
+  </p>
+
+  <p align="center">
+    <b>🎧 High-Performance Studio Audio DSP & Speaker Enhancer for Linux Laptops 🎧</b><br/>
+    <i>"I heard you're talkin' to her again... tapi speaker laptop gua tetep kedengeran nendang & jernih!"</i> ✨
+  </p>
+
+</div>
+
+---
+
+## 📸 Tampilan Aplikasi (Preview)
+
+Ini dia tampilan **That's So Sound (Gracie Abrams Edition)** di desktop Linux! Dark pop-art aesthetic dengan aksen *Gracie Pink* & *Electric Cyan*:
+
+<div align="center">
+  <img src="docs/preview.png" alt="That's So Sound UI Screenshot" width="100%" style="border-radius: 14px; border: 1px solid #3a224a;" />
+  <br/>
+  <em>Tampilan panel That's So Sound: Equalizer, Bass/Treble/Voice sliders, Virtual Surround, dan profil Music aktif.</em>
+</div>
 
 ---
 
 ## 🧐 Apaan nih Proyekan?
 
-Singkatnya: speaker laptop di Linux itu sering banget suaranya cempreng, tipis, dan nggak ada nendang-nendangnya karena DSP tuning bawaan pabrik cuma aktif di Windows.
+Pernah ga ngerasa speaker laptop lo di Linux suaranya **cempreng, tipis, pelan**, atau ga ada bass-nya sama sekali dibanding pas masih di Windows? Itu bukan karena speakernya jelek, tapi karena **DSP tuning bawaan pabrik cuma aktif di Windows**!
 
-Nah, aplikasi ini nge-bridge runtime resmi **Nahimic APO4 (driver Windows asli)** ke audio server Linux (**PipeWire**) lewat bantuan Wine. Jadi kita **nggak bikin ulang DSP-nya dari nol**, tapi ngebungkus DLL aslinya biar bisa jalan di Linux. 
+**That's So Sound** nge-bridge runtime resmi **Nahimic APO4 (driver tuning Windows asli)** langsung ke audio server Linux modern (**PipeWire**) lewat bantuan Wine:
+- 🚀 **Bukan** me-reverse engineer atau bikin algoritma DSP abal-abal dari nol.
+- 🎛️ Memproses stream audio menggunakan file `.dll` resmi pabrikan dengan profile OEM asli.
+- 🎨 Dilengkapi **Qt (PySide6) GUI** bertema dark pop-art terinspirasi lagu *That's So True* by Gracie Abrams.
+- 💡 **Service & GUI Terpisah**: Mesin audionya jalan di background (`systemd user service`), jadi kalau panel GUI-nya lu tutup, musiknya tetep jalan terus tanpa jeda!
 
-Panel GUI-nya pake Qt/PySide6, lengkap dengan:
-- Profil audio (Music, Movie, Gaming, Communication)
-- Bass Boost & Treble
-- Voice Clarity
-- Virtual Surround Sound
-- Volume Stabilization (biar ga kaget pas volume mendadak naik)
-- 10-Band Equalizer
+---
+
+## 🎚️ Fitur Unggulan
+
+| Fitur | Deskripsi |
+| :--- | :--- |
+| 🎵 **4 Profil Akustik** | Mode **Music**, **Movie**, **Communication**, dan **Gaming** yang disetel langsung oleh OEM. |
+| 🗣️ **Voice Clarity** | Menonjolkan vokal dan frekuensi dialog biar suara orang ngomong/podcast terdengar jelas. |
+| 💥 **Dynamic Bass & Treble** | Dongkrak frekuensi low & high tanpa bikin speaker pecah (*distortion-free*). |
+| 🌐 **3D Virtual Surround** | Melebarkan soundstage speaker laptop lo biar serasa dengerin di ruangan luas. |
+| 🎚️ **Smart Volume Stabilizer** | Ngeratain volume otomatis biar telinga lo ga kaget pas ada suara jedag-jedug mendadak. |
+| 🎼 **10-Band Precision EQ** | Equalizer parametrik lengkap dari **31 Hz** sampai **16 kHz** buat fine-tuning selera telinga lo. |
 
 ---
 
 ## 💻 Laptop yang Bisa Pake (Hardware Limits)
 
-Gua ingetin dari awal: **jangan asal install kalau laptop lo beda!**
+> ⚠️ **PERINGATAN PENTING**: Profil akustik speaker tiap laptop itu dibuat khusus oleh pabrik sesuai bentuk rongga bodi fisik laptopnya. **Jangan ganti nama file atau asal pasang di laptop yang beda**, karena bisa bikin membran speaker lo jebol!
 
-Saat ini yang udah di-whitelist dan diverifikasi:
+Saat ini hardware yang sudah di-whitelist & diverifikasi:
 1. **MSI GF63 Thin 11UCX / MS-16R6**
    - Codec: Realtek ALC897 (`10ec0897`, subsystem `1462134c`).
-   - Profil: Wajib pake config OEM resmi `1462134C_InternalSpeakers.nsx`.
-2. **MECHREVO Wujie 14X Pro (Upstream Bawaan)**
+   - Profil OEM: Wajib menggunakan `1462134C_InternalSpeakers.nsx`.
+2. **MECHREVO Wujie 14X Pro (Upstream Original)**
    - Codec: Senary (`14f11f87`, subsystem `1d05e022`).
-
-> 🚫 **Hardware lain bakal otomatis di-reject!** 
-> Jangan ganti-ganti nama file settingan laptop lain buat ngebypass validasi ya bre. Profil akustik speaker tiap laptop itu beda-beda. Kalau dipaksa, suaranya bisa distorsi parah (*rattling*) atau bahkan ngerusak membran speaker fisik lo!
 
 ---
 
-## 🛠️ Persiapan & Dependencies (Khusus Fedora)
+## 🛠️ Persiapan & Dependencies (Fedora)
 
-Pastikan sistem lo pake Linux 64-bit (x86_64), PipeWire Pulse, WirePlumber 0.5+, dan ada systemd user session.
-
-Install dulu dependensi build-nya:
+Pastikan sistem lo pake Linux 64-bit (x86_64), PipeWire Pulse, WirePlumber 0.5+, dan systemd user session.
 
 ```sh
+# 1. Install dependencies
 sudo dnf install wine mingw64-gcc-c++ python3-pyside6 pulseaudio-libs-devel gcc make pkgconf-pkg-config cabextract
-```
 
-Terus build host C++ dan jalanin unit test:
-
-```sh
+# 2. Build komponen native host C++
 make -j4
+
+# 3. Jalankan unit test (41 tests)
 python3 -m unittest discover -s tests -v
 ```
 
 ---
 
-## 📦 Runtime & Komponen Vendor (Ga Dibundel di Sini)
+## 📦 Runtime & Komponen Vendor
 
-Karena alasan lisensi dan hak cipta, repo ini **nggak nyimpen** file `.exe`, `.dll`, `.cab`, atau `.nsx` bajakan. Kode komunitas kita lisensinya MIT, tapi runtime Nahimic tetep milik vendor aslinya.
+Demi kepatuhan lisensi dan hak cipta, repo ini **tidak membundel file binary Windows berpemilik** (`.exe`, `.dll`, `.cab`, atau `.nsx`).
 
-Lo bisa download arsip resmi dan verifikasi checksum SHA-256 otomatis lewat skrip:
+Untuk mendownload arsip resmi vendor dengan verifikasi checksum SHA-256 otomatis:
 
 ```sh
 python3 scripts/fetch-runtime.py --hardware msi-gf63-11ucx --output runtime
 ```
 
-Atau kalau lo udah punya file installer/CAB Nahimic Windows-nya di lokal, tinggal ekstrak manual:
+Atau kalau lo udah punya file installer/CAB Nahimic Windows bawaan laptop di lokal:
 
 ```sh
 python3 packaging/extract_runtime.py /path/to/nahimic-apo4.cab /path/to/GenericNahimicRestoreTool.exe runtime --hardware msi-gf63-11ucx
@@ -77,39 +108,29 @@ python3 packaging/extract_runtime.py /path/to/nahimic-apo4.cab /path/to/GenericN
 
 ---
 
-## 🚀 Instalasi & Cara Pake
+## 🚀 Cara Pake & Kontrol
 
-Cek panduan lengkapnya di [docs/FEDORA-MSI.md](docs/FEDORA-MSI.md) buat aktivasi service lokal dan rollback.
-
-Kalo service udah jalan, cek statusnya lewat terminal:
+Cek status mesin audionya lewat terminal:
 
 ```sh
 nahimic --status
-systemctl --user status nahimic.service
-journalctl --user -u nahimic.service -b
+systemctl --user status nahimic-msi.service
 ```
 
-Buka panel GUI-nya lewat menu aplikasi atau ketik:
+Buka panel kontrol GUI-nya:
+
 ```sh
-nahimic
+nahimic-msi
 ```
 
 > 💡 **Tips dari gua**: Pas pertama kali nyetel setelah install, setel volume pelan-pelan dulu dari kecil. Dengerin baik-baik, kalo ada suara sember atau speaker getar aneh, langsung matiin!
 
 ---
 
-## 🔄 Apa Aja yang Diubah dari Upstream?
+## 🤝 Lisensi & Attribution
 
-- **Validasi Hardware Ketat**: Cek codec/subsystem ID MSI dan validasi XML OEM biar ga salah pasang.
-- **Dynamic Device Filename**: C++ host nerima nama file profil dinamis, ga di-hardcode ke MECHREVO lagi.
-- **Perbaikan Clock Wine**: Pembacaan wall-clock Wine dibikin lebih presisi biar volume state Linux ga dikira "future-dated".
-- **Skrip Ekstraksi MSI**: Tool download dan ekstraksi checksum resmi khusus profil MSI.
-- **Suite Test Lengkap**: Ditambahin unit tests buat hardware gate, path portabel, dan GUI lokal.
+- Kode komunitas & host C++: [MIT License](LICENSE).
+- Runtime binary & profil tuning pabrikan: Hak cipta milik vendor / [Notice](packaging/LicenseRef-Nahimic).
+- Artwork Avatar: Terinspirasi dari Gracie Abrams.
 
----
-
-## 🤝 Lisensi
-
-- Kode komunitas & host: [MIT License](LICENSE).
-- Binary runtime & profil OEM Nahimic: Hak cipta milik vendor / [Notice](packaging/LicenseRef-Nahimic).
 

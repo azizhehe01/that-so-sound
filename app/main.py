@@ -22,44 +22,46 @@ def asset(name):
     return QPixmap(str(ASSETS / name))
 
 STYLE = """
-QWidget { color: #e5eaf0; font-family: 'Noto Sans CJK SC'; font-size: 12px; }
-QMainWindow, QWidget#root, QDialog { background: #142130; }
-QFrame#navigation { background: #0c1722; border: none; }
-QFrame#device { background: #172635; border-right: 1px solid #0b1925; }
-QFrame#effect { background: #142130; border: 1px solid #0e1b29; }
-QFrame#profileBar { background: #172535; border-bottom: 1px solid #36505c; }
-QFrame#toolbar { border-bottom: 1px solid #0c1b28; }
-QLabel#heading { font-size: 21px; font-weight: 400; }
-QLabel#effectTitle { font-size: 16px; font-weight: 400; }
-QLabel#muted, QLabel#caption { color: #8795a2; font-size: 11px; }
-QLabel#value { font-family: 'Bahnschrift', 'Noto Sans'; font-size: 40px; font-weight: 300; }
-QLabel#readout { font-family: 'Noto Sans'; font-size: 12px; }
-QPushButton { background: transparent; border: 1px solid #405363; border-radius: 0; padding: 7px 15px; }
-QPushButton:hover { border-color: #00dafa; color: #00dafa; }
-QPushButton:focus, QToolButton:focus { border: 1px solid #00dafa; }
-QPushButton:disabled { color: #536373; border-color: #283b4b; }
-QToolButton { background: transparent; border: none; color: #a2acb6; padding: 6px; }
-QToolButton:hover { color: #e7faff; background: #1b3041; }
-QToolButton:checked { color: #ffffff; background: #153140; }
-QToolButton#navigationButton { padding: 0; }
-QWidget#titleBar { background: #0c1722; border-bottom: 1px solid #223343; }
-QLabel#windowTitle { color: #9eabb7; font-size: 12px; }
-QToolButton#windowButton, QToolButton#closeWindow { padding: 0; border: none; }
-QToolButton#closeWindow:hover { background: #b63c43; }
-QComboBox { background: #1c3041; border: 1px solid #536879; padding: 8px 12px; min-width: 220px; }
-QComboBox QAbstractItemView { background: #172635; color: #e5eaf0; selection-background-color: #20516a; }
-QLabel#community { color: #8795a2; font-size: 10px; padding: 6px 12px 0 12px; }
+QWidget { color: #f7f1f9; font-family: 'Noto Sans CJK SC', 'Noto Sans', 'Segoe UI', sans-serif; font-size: 12px; }
+QMainWindow, QWidget#root, QDialog { background: #141019; }
+QFrame#navigation { background: #0d0912; border-right: 1px solid #23162b; }
+QFrame#device { background: #191220; border-right: 1px solid #281a33; }
+QFrame#effect { background: #191220; border: 1px solid #2d1c3a; border-radius: 8px; }
+QFrame#profileBar { background: #191220; border-bottom: 1px solid #382046; }
+QFrame#toolbar { border-bottom: 1px solid #23162b; }
+QLabel#heading { font-size: 20px; font-weight: 700; color: #fc77a6; letter-spacing: 0.5px; }
+QLabel#effectTitle { font-size: 15px; font-weight: 600; color: #f5edf7; }
+QLabel#muted, QLabel#caption { color: #a491ae; font-size: 11px; }
+QLabel#value { font-family: 'Bahnschrift', 'Noto Sans'; font-size: 38px; font-weight: 300; color: #7fffff; }
+QLabel#readout { font-family: 'Noto Sans'; font-size: 12px; color: #f7f1f9; font-weight: 600; }
+QPushButton { background: #201529; border: 1px solid #4a2d5e; border-radius: 6px; padding: 7px 16px; color: #f7f1f9; font-weight: 500; }
+QPushButton:hover { border-color: #fc77a6; color: #fc77a6; background: #2e1a3d; }
+QPushButton:focus, QToolButton:focus { border: 1px solid #7fffff; }
+QPushButton:disabled { color: #5c4767; border-color: #23182b; background: transparent; }
+QToolButton { background: transparent; border: none; color: #baa4c5; padding: 6px; border-radius: 6px; }
+QToolButton:hover { color: #ffffff; background: #2b1938; }
+QToolButton:checked { color: #ffffff; background: #391c49; }
+QToolButton#navigationButton { padding: 0 14px; text-align: left; }
+QWidget#titleBar { background: #0d0912; border-bottom: 1px solid #23162b; }
+QLabel#windowTitle { color: #d1badb; font-size: 12px; font-weight: 600; }
+QToolButton#windowButton, QToolButton#closeWindow { padding: 0; border: none; border-radius: 0; }
+QToolButton#closeWindow:hover { background: #fb3a29; color: #ffffff; }
+QComboBox { background: #201529; border: 1px solid #4a2d5e; border-radius: 6px; padding: 8px 12px; min-width: 220px; color: #f7f1f9; }
+QComboBox QAbstractItemView { background: #191220; color: #f7f1f9; selection-background-color: #4a215c; selection-color: #ffffff; border: 1px solid #382046; }
+QLabel#community { color: #fc77a6; font-size: 13px; font-weight: 700; padding: 8px 12px 2px 12px; letter-spacing: 0.5px; }
+QLabel#tagline { color: #9f8ba9; font-size: 10px; padding: 0 10px 4px 10px; }
 QSlider { background: transparent; }
-QSlider::groove:horizontal { height: 12px; background: #365360; }
-QSlider::sub-page:horizontal { background: #365360; }
-QSlider::handle:horizontal { width: 20px; background: #00d9f2; border: 1px solid #5ce9f4; margin: -1px 0; }
-QSlider::handle:horizontal:hover, QSlider::handle:horizontal:focus { background: #81f4ff; }
-QSlider::groove:vertical { width: 2px; background: #3b5864; }
-QSlider::add-page:vertical { background: #00cfe7; }
-QSlider::handle:vertical { height: 5px; background: #eefaff; border: 1px solid #ffffff; border-radius: 3px; margin: 0 -6px; }
-QSlider::handle:disabled { background: #536c79; border-color: #536c79; }
+QSlider::groove:horizontal { height: 10px; background: #2b1c38; border-radius: 5px; }
+QSlider::sub-page:horizontal { background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #fc77a6, stop:1 #7fffff); border-radius: 5px; }
+QSlider::handle:horizontal { width: 20px; background: #7fffff; border: 2px solid #ffffff; border-radius: 10px; margin: -5px 0; }
+QSlider::handle:horizontal:hover, QSlider::handle:horizontal:focus { background: #fc77a6; border-color: #ffffff; }
+QSlider::groove:vertical { width: 6px; background: #2b1c38; border-radius: 3px; }
+QSlider::add-page:vertical { background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #7fffff, stop:1 #fc77a6); border-radius: 3px; }
+QSlider::handle:vertical { height: 8px; width: 22px; background: #7fffff; border: 2px solid #ffffff; border-radius: 4px; margin: 0 -8px; }
+QSlider::handle:vertical:hover, QSlider::handle:vertical:focus { background: #fc77a6; }
+QSlider::handle:disabled { background: #473555; border-color: #31233d; }
 QCheckBox { spacing: 10px; }
-QCheckBox:disabled { color: #536373; }
+QCheckBox:disabled { color: #5c4767; }
 """
 
 
@@ -88,7 +90,7 @@ class Toggle(QCheckBox):
         picture = asset(name)
         painter.drawPixmap(self.rect(), picture)
         if self.hasFocus():
-            painter.setPen(QPen(QColor('#00dafa'), 1, Qt.DotLine))
+            painter.setPen(QPen(QColor('#fc77a6'), 1, Qt.DotLine))
             painter.drawRect(self.rect().adjusted(1, 1, -2, -2))
 
 
@@ -135,7 +137,7 @@ class SpacedToolButton(QToolButton):
             text_rect = rect.adjusted(8, top + icon_size.height() + 8, -8, -6)
             alignment = Qt.AlignHCenter | Qt.AlignTop
         self.icon().paint(painter, icon_rect, Qt.AlignCenter, mode)
-        painter.setPen(QColor('#e5eaf0' if self.isEnabled() else '#536373'))
+        painter.setPen(QColor('#f7f1f9' if self.isEnabled() else '#5c4767'))
         painter.drawText(text_rect, alignment, self.text())
 
 
@@ -144,13 +146,13 @@ class ProfileButton(SpacedToolButton):
         if self.isChecked():
             painter = QPainter(self)
             glow = QLinearGradient(0, 0, 0, self.height())
-            glow.setColorAt(0, QColor('#172535')); glow.setColorAt(1, QColor('#164456'))
+            glow.setColorAt(0, QColor('#271731')); glow.setColorAt(1, QColor('#3e1b42'))
             painter.fillRect(self.rect(), glow)
             painter.end()
         super().paintEvent(event)
         if self.isChecked():
             painter = QPainter(self)
-            painter.fillRect(0, self.height() - 3, self.width(), 3, QColor('#00dcf5'))
+            painter.fillRect(0, self.height() - 3, self.width(), 3, QColor('#fc77a6'))
 
 
 class Panel(QMainWindow):
@@ -169,8 +171,9 @@ class Panel(QMainWindow):
         self.settings_loaded = False
         self.loaded_pid = None
         self.values = {}; self.switches = {}; self.modes = {}; self.effect_images = {}
-        self.setWindowTitle('Nahimic Linux')
-        self.setWindowIcon(QIcon(str(Path(__file__).with_name('nahimic.svg'))))
+        self.setWindowTitle("That's So Sound")
+        icon = QIcon.fromTheme(SERVICE.removesuffix('.service'), QIcon(str(Path(__file__).with_name('nahimic.svg'))))
+        self.setWindowIcon(icon)
         self.resize(1100, 690); self.setMinimumSize(1000, 660)
         central = QWidget(); central.setObjectName('root'); self.setCentralWidget(central)
         frame = QVBoxLayout(central); frame.setContentsMargins(1, 1, 1, 1); frame.setSpacing(0)
@@ -192,7 +195,8 @@ class Panel(QMainWindow):
         nav.addStretch()
         logo = QLabel(); logo.setPixmap(asset('LogoNahimicSteelSeries.png').scaledToWidth(94, Qt.SmoothTransformation))
         logo.setAlignment(Qt.AlignCenter); nav.addWidget(logo)
-        community = QLabel('社区版本 · 非官方'); community.setObjectName('community'); community.setWordWrap(True); community.setAlignment(Qt.AlignCenter); nav.addWidget(community)
+        community = QLabel("That's So Sound"); community.setObjectName('community'); community.setWordWrap(True); community.setAlignment(Qt.AlignCenter); nav.addWidget(community)
+        tagline = QLabel("Gracie Abrams Edition 🎧"); tagline.setObjectName('tagline'); tagline.setAlignment(Qt.AlignCenter); nav.addWidget(tagline)
         shell.addWidget(navigation)
 
         self.controls = QWidget(); body = QHBoxLayout(self.controls); body.setContentsMargins(0,0,0,0); body.setSpacing(0)
@@ -311,8 +315,8 @@ class Panel(QMainWindow):
         self.auto.clicked.connect(lambda checked: self.submit(lambda: self.backend.autostart(checked), 'state', 'autostart', checked)); preferences_layout.addWidget(self.auto)
         note = QLabel('关闭窗口后，音效继续运行。模式和参数会自动保存。'); note.setObjectName('muted'); note.setWordWrap(True); preferences_layout.addWidget(note)
         about = QLabel('关于'); about.setObjectName('effectTitle'); preferences_layout.addWidget(about)
-        version = QLabel('Nahimic Linux  0.3.0'); version.setObjectName('caption'); preferences_layout.addWidget(version)
-        disclaimer = QLabel('这是独立的社区项目，与 Nahimic、A-Volute、SteelSeries 及电脑厂商无隶属关系，也未获其认可或赞助。相关名称、商标和原厂资源归各自权利人所有。')
+        version = QLabel("That's So Sound  0.3.0"); version.setObjectName('caption'); preferences_layout.addWidget(version)
+        disclaimer = QLabel("That's So Sound — audio tuning & equalizer for Linux.\nInspired by 'That's So True' by Gracie Abrams.")
         disclaimer.setWordWrap(True); disclaimer.setObjectName('muted'); disclaimer.setMaximumWidth(460); preferences_layout.addWidget(disclaimer)
         close_button = QPushButton('完成'); close_button.clicked.connect(self.preferences.accept); preferences_layout.addWidget(close_button,0,Qt.AlignRight)
         self.preferences_titlebar = decorate(self.preferences, preferences_outer)
@@ -504,7 +508,11 @@ class Panel(QMainWindow):
 
 
 def main():
-    app=QApplication(sys.argv);app.setStyle('Fusion');app.setStyleSheet(STYLE)
+    app=QApplication(sys.argv)
+    desktop_name = os.environ.get('NAHIMIC_DESKTOP_NAME', SERVICE.removesuffix('.service'))
+    app.setDesktopFileName(desktop_name)
+    app.setApplicationName("That's So Sound")
+    app.setStyle('Fusion');app.setStyleSheet(STYLE)
     runtime=Path(os.environ['XDG_RUNTIME_DIR']);lock=QLockFile(str(runtime/'nahimic-panel.lock'))
     socket_name=str(runtime/'nahimic-panel.socket')
     if not lock.tryLock(0):

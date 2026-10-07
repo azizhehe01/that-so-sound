@@ -97,7 +97,7 @@ def install(source, resources, prefix, *, stage=None, dry_run=False,
                     f'ExecStart={python} {prefix}/host/entry.py --service\nKillMode=mixed\nTimeoutStopSec=45\n\n[Install]\nWantedBy=default.target\n')
     desktop = destination(destinations[2])
     desktop.parent.mkdir(parents=True, exist_ok=True)
-    desktop.write_text(f'[Desktop Entry]\nType=Application\nName=Nahimic (local)\nExec={prefix}/launch\nIcon={prefix}/app/nahimic.svg\nTerminal=false\nCategories=AudioVideo;Audio;\n')
+    desktop.write_text(f'[Desktop Entry]\nType=Application\nName=That\'s So Sound\nExec={prefix}/launch\nIcon=nahimic-msi\nTerminal=false\nCategories=AudioVideo;Audio;\nStartupWMClass=nahimic-msi\n')
     return plan
 
 

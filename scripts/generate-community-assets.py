@@ -30,11 +30,25 @@ def generate(destination):
         painter = QPainter(image)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         disabled = 'Off' in name or 'Unchecked' in name or 'Desactivated' in name
-        color = QColor('#718096' if disabled else '#6dd8dc')
+        if disabled:
+            color = QColor('#5d476b')
+        elif 'Mute' in name and 'Checked' in name:
+            color = QColor('#fb3a29')
+        elif 'Check' in name or 'Checkbox' in name or 'Volume' in name:
+            color = QColor('#fc77a6')
+        else:
+            color = QColor('#7fffff')
         painter.setPen(QPen(color, max(1.0, w / 24.0)))
         if 'Logo' in name:
-            painter.setFont(QFont('Sans', 11))
-            painter.drawText(QRectF(0, 0, w, h), Qt.AlignmentFlag.AlignCenter, 'Linux Audio\nCommunity')
+            icon_png = ROOT / 'app/nahimic.png'
+            if icon_png.exists():
+                src_img = QImage(str(icon_png))
+                scaled = src_img.scaled(min(w, h), min(w, h), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+                painter.drawImage((w - scaled.width()) // 2, (h - scaled.height()) // 2, scaled)
+            else:
+                painter.setFont(QFont('Sans', 10, QFont.Weight.Bold))
+                painter.setPen(QPen(QColor('#fc77a6')))
+                painter.drawText(QRectF(0, 0, w, h), Qt.AlignmentFlag.AlignCenter, "That's So Sound")
         elif 'Check' in name or 'Checkbox' in name:
             painter.drawRoundedRect(QRectF(w*.12, h*.15, w*.76, h*.7), w*.12, w*.12)
             if 'Checked' in name:
