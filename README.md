@@ -73,7 +73,7 @@ Saat ini hardware yang sudah di-whitelist & diverifikasi:
 
 ## 🛠️ Persiapan & Dependencies (Fedora)
 
-Pastikan sistem lo pake Linux 64-bit (x86_64), PipeWire Pulse, WirePlumber 0.5+, dan systemd user session.
+Pastikan sistem lo harus pake Linux 64-bit (x86_64), PipeWire Pulse, WirePlumber 0.5+, dan systemd user session.
 
 ```sh
 # 1. Install dependencies
