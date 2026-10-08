@@ -62,7 +62,7 @@ Pernah ga ngerasa speaker laptop lo di Linux suaranya **cempreng, tipis, pelan**
 
 > ⚠️ **PERINGATAN PENTING**: Profil akustik speaker tiap laptop itu dibuat khusus oleh pabrik sesuai bentuk rongga bodi fisik laptopnya. **Jangan ganti nama file atau asal pasang di laptop yang beda**, karena bisa bikin membran speaker lo jebol!
 
-Saat ini hardware yang sudah di-whitelist & diverifikasi:
+Saat ini hardware yang sudah di-whitelist & diverifikasi choyyyy:
 1. **MSI GF63 Thin 11UCX / MS-16R6**
    - Codec: Realtek ALC897 (`10ec0897`, subsystem `1462134c`).
    - Profil OEM: Wajib menggunakan `1462134C_InternalSpeakers.nsx`.
