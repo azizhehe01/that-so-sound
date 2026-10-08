@@ -21,47 +21,226 @@ ASSETS = Path(__file__).with_name('assets')
 def asset(name):
     return QPixmap(str(ASSETS / name))
 
-STYLE = """
-QWidget { color: #f7f1f9; font-family: 'Noto Sans CJK SC', 'Noto Sans', 'Segoe UI', sans-serif; font-size: 12px; }
-QMainWindow, QWidget#root, QDialog { background: #141019; }
-QFrame#navigation { background: #0d0912; border-right: 1px solid #23162b; }
-QFrame#device { background: #191220; border-right: 1px solid #281a33; }
-QFrame#effect { background: #191220; border: 1px solid #2d1c3a; border-radius: 8px; }
-QFrame#profileBar { background: #191220; border-bottom: 1px solid #382046; }
-QFrame#toolbar { border-bottom: 1px solid #23162b; }
-QLabel#heading { font-size: 20px; font-weight: 700; color: #fc77a6; letter-spacing: 0.5px; }
-QLabel#effectTitle { font-size: 15px; font-weight: 600; color: #f5edf7; }
-QLabel#muted, QLabel#caption { color: #a491ae; font-size: 11px; }
-QLabel#value { font-family: 'Bahnschrift', 'Noto Sans'; font-size: 38px; font-weight: 300; color: #7fffff; }
-QLabel#readout { font-family: 'Noto Sans'; font-size: 12px; color: #f7f1f9; font-weight: 600; }
-QPushButton { background: #201529; border: 1px solid #4a2d5e; border-radius: 6px; padding: 7px 16px; color: #f7f1f9; font-weight: 500; }
-QPushButton:hover { border-color: #fc77a6; color: #fc77a6; background: #2e1a3d; }
-QPushButton:focus, QToolButton:focus { border: 1px solid #7fffff; }
-QPushButton:disabled { color: #5c4767; border-color: #23182b; background: transparent; }
-QToolButton { background: transparent; border: none; color: #baa4c5; padding: 6px; border-radius: 6px; }
-QToolButton:hover { color: #ffffff; background: #2b1938; }
-QToolButton:checked { color: #ffffff; background: #391c49; }
-QToolButton#navigationButton { padding: 0 14px; text-align: left; }
-QWidget#titleBar { background: #0d0912; border-bottom: 1px solid #23162b; }
-QLabel#windowTitle { color: #d1badb; font-size: 12px; font-weight: 600; }
-QToolButton#windowButton, QToolButton#closeWindow { padding: 0; border: none; border-radius: 0; }
-QToolButton#closeWindow:hover { background: #fb3a29; color: #ffffff; }
-QComboBox { background: #201529; border: 1px solid #4a2d5e; border-radius: 6px; padding: 8px 12px; min-width: 220px; color: #f7f1f9; }
-QComboBox QAbstractItemView { background: #191220; color: #f7f1f9; selection-background-color: #4a215c; selection-color: #ffffff; border: 1px solid #382046; }
-QLabel#community { color: #fc77a6; font-size: 13px; font-weight: 700; padding: 8px 12px 2px 12px; letter-spacing: 0.5px; }
-QLabel#tagline { color: #9f8ba9; font-size: 10px; padding: 0 10px 4px 10px; }
-QSlider { background: transparent; }
-QSlider::groove:horizontal { height: 10px; background: #2b1c38; border-radius: 5px; }
-QSlider::sub-page:horizontal { background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #fc77a6, stop:1 #7fffff); border-radius: 5px; }
-QSlider::handle:horizontal { width: 20px; background: #7fffff; border: 2px solid #ffffff; border-radius: 10px; margin: -5px 0; }
-QSlider::handle:horizontal:hover, QSlider::handle:horizontal:focus { background: #fc77a6; border-color: #ffffff; }
-QSlider::groove:vertical { width: 6px; background: #2b1c38; border-radius: 3px; }
-QSlider::add-page:vertical { background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #7fffff, stop:1 #fc77a6); border-radius: 3px; }
-QSlider::handle:vertical { height: 8px; width: 22px; background: #7fffff; border: 2px solid #ffffff; border-radius: 4px; margin: 0 -8px; }
-QSlider::handle:vertical:hover, QSlider::handle:vertical:focus { background: #fc77a6; }
-QSlider::handle:disabled { background: #473555; border-color: #31233d; }
-QCheckBox { spacing: 10px; }
-QCheckBox:disabled { color: #5c4767; }
+TOKENS = {
+    'bg_root': '#0e1117',
+    'bg_nav': '#090c10',
+    'bg_surface': '#151922',
+    'bg_surface_alt': '#1b212d',
+    'border': '#252d3d',
+    'border_subtle': '#1c222e',
+    'accent': '#f43f5e',
+    'accent_hover': '#fb7185',
+    'accent_dark': '#be123c',
+    'text_primary': '#f0f3f6',
+    'text_secondary': '#9aa3b2',
+    'text_muted': '#687282',
+    'font_sans': "'Noto Sans CJK SC', 'Noto Sans', 'Segoe UI', -apple-system, sans-serif",
+    'font_mono': "'JetBrains Mono', 'Consolas', 'Noto Sans Mono', monospace",
+}
+
+STYLE = f"""
+/* Hallmark · genre: modern-minimal · macrostructure: Workbench · theme: studio-dark */
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V4 */
+QWidget {{
+    color: {TOKENS['text_primary']};
+    font-family: {TOKENS['font_sans']};
+    font-size: 12px;
+}}
+QMainWindow, QWidget#root, QDialog {{
+    background: {TOKENS['bg_root']};
+}}
+QFrame#navigation {{
+    background: {TOKENS['bg_nav']};
+    border-right: 1px solid {TOKENS['border_subtle']};
+}}
+QFrame#device {{
+    background: {TOKENS['bg_surface']};
+    border-right: 1px solid {TOKENS['border_subtle']};
+}}
+QFrame#effect {{
+    background: {TOKENS['bg_surface']};
+    border: 1px solid {TOKENS['border']};
+    border-radius: 8px;
+}}
+QFrame#profileBar {{
+    background: {TOKENS['bg_surface']};
+    border-bottom: 1px solid {TOKENS['border']};
+}}
+QFrame#toolbar {{
+    background: {TOKENS['bg_nav']};
+    border-bottom: 1px solid {TOKENS['border_subtle']};
+}}
+QLabel#heading {{
+    font-size: 18px;
+    font-weight: 700;
+    color: {TOKENS['accent']};
+    letter-spacing: 0.5px;
+}}
+QLabel#effectTitle {{
+    font-size: 14px;
+    font-weight: 600;
+    color: {TOKENS['text_primary']};
+}}
+QLabel#muted {{
+    color: {TOKENS['text_muted']};
+    font-size: 11px;
+}}
+QLabel#caption {{
+    color: {TOKENS['text_secondary']};
+    font-size: 12px;
+}}
+QLabel#value {{
+    font-family: {TOKENS['font_mono']};
+    font-size: 32px;
+    font-weight: 600;
+    color: {TOKENS['accent']};
+}}
+QLabel#readout {{
+    font-family: {TOKENS['font_mono']};
+    font-size: 12px;
+    color: {TOKENS['text_primary']};
+    font-weight: 600;
+}}
+QPushButton {{
+    background: {TOKENS['bg_surface_alt']};
+    border: 1px solid {TOKENS['border']};
+    border-radius: 6px;
+    padding: 7px 16px;
+    color: {TOKENS['text_primary']};
+    font-weight: 500;
+}}
+QPushButton:hover {{
+    border-color: {TOKENS['accent']};
+    color: {TOKENS['accent_hover']};
+    background: {TOKENS['bg_surface']};
+}}
+QPushButton:focus, QToolButton:focus {{
+    border: 1px solid {TOKENS['accent']};
+}}
+QPushButton:disabled {{
+    color: {TOKENS['text_muted']};
+    border-color: {TOKENS['border_subtle']};
+    background: transparent;
+}}
+QToolButton {{
+    background: transparent;
+    border: none;
+    color: {TOKENS['text_secondary']};
+    padding: 6px;
+    border-radius: 6px;
+}}
+QToolButton:hover {{
+    color: {TOKENS['text_primary']};
+    background: {TOKENS['bg_surface_alt']};
+}}
+QToolButton:checked {{
+    color: #ffffff;
+    background: {TOKENS['bg_surface_alt']};
+}}
+QToolButton#navigationButton {{
+    padding: 0 14px;
+    text-align: left;
+}}
+QWidget#titleBar {{
+    background: {TOKENS['bg_nav']};
+    border-bottom: 1px solid {TOKENS['border_subtle']};
+}}
+QLabel#windowTitle {{
+    color: {TOKENS['text_secondary']};
+    font-size: 12px;
+    font-weight: 600;
+}}
+QToolButton#windowButton, QToolButton#closeWindow {{
+    padding: 0;
+    border: none;
+    border-radius: 0;
+}}
+QToolButton#closeWindow:hover {{
+    background: #e11d48;
+    color: #ffffff;
+}}
+QComboBox {{
+    background: {TOKENS['bg_surface_alt']};
+    border: 1px solid {TOKENS['border']};
+    border-radius: 6px;
+    padding: 8px 12px;
+    min-width: 220px;
+    color: {TOKENS['text_primary']};
+}}
+QComboBox QAbstractItemView {{
+    background: {TOKENS['bg_surface']};
+    color: {TOKENS['text_primary']};
+    selection-background-color: {TOKENS['accent_dark']};
+    selection-color: #ffffff;
+    border: 1px solid {TOKENS['border']};
+}}
+QLabel#community {{
+    color: {TOKENS['accent']};
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 12px 2px 12px;
+    letter-spacing: 0.5px;
+}}
+QLabel#tagline {{
+    color: {TOKENS['text_secondary']};
+    font-size: 11px;
+    padding: 0 10px 4px 10px;
+}}
+QSlider {{
+    background: transparent;
+}}
+QSlider::groove:horizontal {{
+    height: 8px;
+    background: {TOKENS['bg_surface_alt']};
+    border: 1px solid {TOKENS['border_subtle']};
+    border-radius: 4px;
+}}
+QSlider::sub-page:horizontal {{
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 {TOKENS['accent_dark']}, stop:1 {TOKENS['accent']});
+    border-radius: 4px;
+}}
+QSlider::handle:horizontal {{
+    width: 18px;
+    background: #ffffff;
+    border: 2px solid {TOKENS['accent']};
+    border-radius: 9px;
+    margin: -5px 0;
+}}
+QSlider::handle:horizontal:hover, QSlider::handle:horizontal:focus {{
+    background: {TOKENS['accent_hover']};
+    border-color: #ffffff;
+}}
+QSlider::groove:vertical {{
+    width: 8px;
+    background: {TOKENS['bg_surface_alt']};
+    border: 1px solid {TOKENS['border_subtle']};
+    border-radius: 4px;
+}}
+QSlider::add-page:vertical {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 {TOKENS['accent']}, stop:1 {TOKENS['accent_dark']});
+    border-radius: 4px;
+}}
+QSlider::handle:vertical {{
+    height: 18px;
+    background: #ffffff;
+    border: 2px solid {TOKENS['accent']};
+    border-radius: 9px;
+    margin: 0 -5px;
+}}
+QSlider::handle:vertical:hover, QSlider::handle:vertical:focus {{
+    background: {TOKENS['accent_hover']};
+    border-color: #ffffff;
+}}
+QSlider::handle:disabled {{
+    background: {TOKENS['border']};
+    border-color: {TOKENS['border_subtle']};
+}}
+QCheckBox {{
+    spacing: 10px;
+}}
+QCheckBox:disabled {{
+    color: {TOKENS['text_muted']};
+}}
 """
 
 
@@ -90,7 +269,7 @@ class Toggle(QCheckBox):
         picture = asset(name)
         painter.drawPixmap(self.rect(), picture)
         if self.hasFocus():
-            painter.setPen(QPen(QColor('#fc77a6'), 1, Qt.DotLine))
+            painter.setPen(QPen(QColor(TOKENS['accent']), 1, Qt.DotLine))
             painter.drawRect(self.rect().adjusted(1, 1, -2, -2))
 
 
@@ -137,7 +316,7 @@ class SpacedToolButton(QToolButton):
             text_rect = rect.adjusted(8, top + icon_size.height() + 8, -8, -6)
             alignment = Qt.AlignHCenter | Qt.AlignTop
         self.icon().paint(painter, icon_rect, Qt.AlignCenter, mode)
-        painter.setPen(QColor('#f7f1f9' if self.isEnabled() else '#5c4767'))
+        painter.setPen(QColor(TOKENS['text_primary'] if self.isEnabled() else TOKENS['text_muted']))
         painter.drawText(text_rect, alignment, self.text())
 
 
@@ -145,14 +324,12 @@ class ProfileButton(SpacedToolButton):
     def paintEvent(self, event):
         if self.isChecked():
             painter = QPainter(self)
-            glow = QLinearGradient(0, 0, 0, self.height())
-            glow.setColorAt(0, QColor('#271731')); glow.setColorAt(1, QColor('#3e1b42'))
-            painter.fillRect(self.rect(), glow)
+            painter.fillRect(self.rect(), QColor(TOKENS['bg_surface_alt']))
             painter.end()
         super().paintEvent(event)
         if self.isChecked():
             painter = QPainter(self)
-            painter.fillRect(0, self.height() - 3, self.width(), 3, QColor('#fc77a6'))
+            painter.fillRect(0, self.height() - 3, self.width(), 3, QColor(TOKENS['accent']))
 
 
 class Panel(QMainWindow):
@@ -253,30 +430,30 @@ class Panel(QMainWindow):
         description=QLabel('让声音从四周传来，带来更有空间感的聆听体验。'); description.setObjectName('caption'); description.setWordWrap(True)
         surround_text.addWidget(description); surround_text.addStretch(); surround_layout.addLayout(surround_text,1)
         upper.addWidget(surround,2)
-        compressor=QFrame(); compressor.setObjectName('effect'); compressor_layout=QVBoxLayout(compressor); compressor_layout.setContentsMargins(22,14,14,16); compressor_layout.setSpacing(9)
+        compressor=QFrame(); compressor.setObjectName('effect'); compressor_layout=QVBoxLayout(compressor); compressor_layout.setContentsMargins(20,14,16,16); compressor_layout.setSpacing(10)
         row=QHBoxLayout(); label=QLabel('音量稳定器'); label.setObjectName('effectTitle'); label.setWordWrap(True); row.addWidget(label); row.addStretch()
         row.addWidget(self.effect_switch('kSet_CompressorState','启用音量稳定器')); compressor_layout.addLayout(row)
         wave=QLabel(); wave.setFixedSize(100,75); wave.setAlignment(Qt.AlignCenter); compressor_layout.addWidget(wave,0,Qt.AlignHCenter)
         self.effect_images['kSet_CompressorState']=(wave,'VolumeStabiliserOn80x60.png','VolumeStabilizerOff80x60.png')
-        description=QLabel('保持音量均衡，减少声音忽大忽小。'); description.setObjectName('caption'); description.setWordWrap(True); description.setAlignment(Qt.AlignCenter); compressor_layout.addWidget(description); compressor_layout.addStretch()
+        description=QLabel('保持音量均衡，减少声音忽大忽小。'); description.setObjectName('caption'); description.setWordWrap(True); compressor_layout.addWidget(description); compressor_layout.addStretch()
         upper.addWidget(compressor,1); page.addLayout(upper,1)
 
-        lower=QHBoxLayout(); lower.setContentsMargins(0,0,0,0); lower.setSpacing(0)
+        lower=QHBoxLayout(); lower.setContentsMargins(0,0,0,0); lower.setSpacing(1)
         for title,state,gain,description in (
             ('人声','kSet_VoiceBoostState','kSet_VoiceBoostGainDB','调整对白与歌声的清晰度'),
             ('低音','kSet_BassBoostState','kSet_BassBoostGainDB','调整低频声音的力度与厚度'),
             ('高音','kSet_TrebleBoostState','kSet_TrebleBoostGainDB','调整声音细节与明亮度')):
-            effect=QFrame(); effect.setObjectName('effect'); column=QVBoxLayout(effect); column.setContentsMargins(22,12,14,16); column.setSpacing(6)
-            row=QHBoxLayout(); row.addSpacing(38); label=QLabel(title); label.setObjectName('effectTitle'); label.setWordWrap(True); label.setAlignment(Qt.AlignCenter); row.addWidget(label,1)
+            effect=QFrame(); effect.setObjectName('effect'); column=QVBoxLayout(effect); column.setContentsMargins(20,14,18,16); column.setSpacing(8)
+            row=QHBoxLayout(); label=QLabel(title); label.setObjectName('effectTitle'); label.setWordWrap(True); row.addWidget(label,1)
             row.addWidget(self.effect_switch(state,'启用'+title)); column.addLayout(row)
-            readout=QHBoxLayout(); readout.setSpacing(6); readout.addStretch()
-            value=QLabel('0'); value.setObjectName('value'); value.setFixedHeight(54); readout.addWidget(value)
-            unit=QLabel('dB'); unit.setObjectName('caption'); readout.addWidget(unit,0,Qt.AlignVCenter); readout.addStretch(); column.addLayout(readout)
-            slider=ControlSlider(Qt.Horizontal); slider.setFixedWidth(130); slider.setAccessibleName(title+'增益')
+            readout=QHBoxLayout(); readout.setSpacing(6)
+            value=QLabel('0'); value.setObjectName('value'); value.setFixedHeight(44); readout.addWidget(value)
+            unit=QLabel('dB'); unit.setObjectName('caption'); readout.addWidget(unit,0,Qt.AlignBottom | Qt.AlignLeft); readout.addStretch(); column.addLayout(readout)
+            slider=ControlSlider(Qt.Horizontal); slider.setAccessibleName(title+'增益')
             slider.valueChanged.connect(lambda v,l=value:l.setText(str(v)))
             slider.sliderReleased.connect(lambda n=gain,s=slider:self.submit(lambda v=s.value():self.backend.set_setting(n,v),'settings',n,s.value()))
-            self.values[gain]=slider; column.addWidget(slider,0,Qt.AlignHCenter)
-            note=QLabel(description); note.setObjectName('caption'); note.setAlignment(Qt.AlignCenter); note.setWordWrap(True); note.setFixedHeight(36); column.addWidget(note); column.addStretch()
+            self.values[gain]=slider; column.addWidget(slider)
+            note=QLabel(description); note.setObjectName('caption'); note.setWordWrap(True); note.setFixedHeight(34); column.addWidget(note); column.addStretch()
             lower.addWidget(effect,1)
         page.addLayout(lower,1)
 
