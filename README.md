@@ -23,12 +23,20 @@
 
 ## 📸 Tampilan Aplikasi (Preview)
 
-Ini dia tampilan **That's So Sound (Gracie Abrams Edition)** di desktop Linux! Dark pop-art aesthetic dengan aksen *Gracie Pink* & *Electric Cyan*:
+Ini dia tampilan **That's So Sound (Gracie Abrams Edition)** di desktop Linux! Sekarang hadir dengan **4 pilihan tema warna** (Rose, Midnight Rose, Dark, dan Light) untuk menyesuaikan mood lo:
 
+### 🌹 Rose & 🌃 Midnight Rose
 <div align="center">
-  <img src="docs/preview.png" alt="That's So Sound UI Screenshot" width="100%" style="border-radius: 14px; border: 1px solid #3a224a;" />
-  <br/>
-  <em>Tampilan panel That's So Sound: Equalizer, Bass/Treble/Voice sliders, Virtual Surround, dan profil Music aktif.</em>
+  <img src="docs/rose.png" alt="Rose Theme" width="49%" style="border-radius: 14px; border: 1px solid #3a224a;" />
+  <img src="docs/midnight%20rose.png" alt="Midnight Rose Theme" width="49%" style="border-radius: 14px; border: 1px solid #3a224a;" />
+</div>
+
+### 🌙 Dark & ☀️ Light
+<div align="center">
+  <img src="docs/dark.png" alt="Dark Theme" width="49%" style="border-radius: 14px; border: 1px solid #3a224a;" />
+  <img src="docs/light.png" alt="Light Theme" width="49%" style="border-radius: 14px; border: 1px solid #3a224a;" />
+  <br/><br/>
+  <em>Tampilan panel That's So Sound: Equalizer, Bass/Treble/Voice sliders, Virtual Surround, dan profil Music aktif dalam berbagai tema.</em>
 </div>
 
 ---
@@ -55,6 +63,7 @@ Pernah ga ngerasa speaker laptop lo di Linux suaranya **cempreng, tipis, pelan**
 | 🌐 **3D Virtual Surround** | Melebarkan soundstage speaker laptop lo biar serasa dengerin di ruangan luas. |
 | 🎚️ **Smart Volume Stabilizer** | Ngeratain volume otomatis biar telinga lo ga kaget pas ada suara jedag-jedug mendadak. |
 | 🎼 **10-Band Precision EQ** | Equalizer parametrik lengkap dari **31 Hz** sampai **16 kHz** buat fine-tuning selera telinga lo. |
+| 🎨 **Custom Themes** | Pilihan 4 tema warna: *Rose*, *Midnight Rose*, *Dark*, dan *Light* untuk menyesuaikan UI dengan mood lo. |
 
 ---
 

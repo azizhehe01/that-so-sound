@@ -1,6 +1,6 @@
 """Custom chrome with compositor-managed movement and resizing."""
 from PySide6.QtCore import Qt, QEvent
-from PySide6.QtGui import QIcon, QColor, QPen
+from PySide6.QtGui import QIcon, QPalette, QPen
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QToolButton, QStyle, QDialog, QStylePainter, QStyleOptionToolButton
 
 class ResizeEdge(QWidget):
@@ -27,7 +27,7 @@ class WindowButton(QToolButton):
         option=QStyleOptionToolButton();self.initStyleOption(option)
         option.icon=QIcon();option.text=''
         painter=QStylePainter(self);painter.drawComplexControl(QStyle.CC_ToolButton,option)
-        painter.setPen(QPen(QColor('#d5dfe8'),1))
+        painter.setPen(QPen(option.palette.color(QPalette.ButtonText), 1))
         x,y=self.width()//2,self.height()//2
         if self.symbol==QStyle.SP_TitleBarCloseButton:
             painter.drawLine(x-4,y-4,x+4,y+4);painter.drawLine(x+4,y-4,x-4,y+4)
