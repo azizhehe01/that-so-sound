@@ -200,8 +200,8 @@ def main():
         module = int(created.stdout.strip())
         state['module'] = module
         capture_sink = sink
-        common = ['pw-cat', '--raw', '--format', 'f32', '--rate', '48000', '--channels', '2', '--channel-map', 'FL,FR', '--latency', '1024']
-        render = start('render', ['pacat', '--playback', '--raw', '--format=float32le', '--rate=48000', '--channels=2', '--channel-map=front-left,front-right', '--latency-msec=80', '--process-time-msec=10', '--device', args.target, '--client-name=Nahimic playback', f'--property=node.name={sink}_render', f'--property=node.link-group={sink}', '--property=node.linger=true', '--property=node.dont-fallback=true'], stdin=host.stdout, stdout=subprocess.DEVNULL)
+        common = ['pw-cat', '--raw', '--format', 'f32', '--rate', '48000', '--channels', '2', '--channel-map', 'FL,FR', '--latency', '256']
+        render = start('render', ['pacat', '--playback', '--raw', '--format=float32le', '--rate=48000', '--channels=2', '--channel-map=front-left,front-right', '--latency-msec=30', '--process-time-msec=5', '--device', args.target, '--client-name=Nahimic playback', f'--property=node.name={sink}_render', f'--property=node.link-group={sink}', '--property=node.linger=true', '--property=node.dont-fallback=true'], stdin=host.stdout, stdout=subprocess.DEVNULL)
         host.stdout.close()
         capture = start('capture', common + ['--record', '--target', capture_sink, '--properties', f'{{ node.name = {sink}_capture stream.capture.sink = true node.dont-reconnect = true }}', '-'], stdin=subprocess.DEVNULL, stdout=host.stdin)
         host.stdin.close()
