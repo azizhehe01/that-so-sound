@@ -54,6 +54,48 @@ class RedesignedUITest(unittest.TestCase):
         for p in reversed(self.patches): p.stop()
         self.directory.cleanup()
 
+    def test_effect_card_alignment_at_supported_window_sizes(self):
+        from PySide6.QtWidgets import QLabel
+        p = self.panel; p.translations.select('en'); p.show()
+        for width, height in ((1060, 720), (1280, 800), (1600, 1000)):
+            p.resize(width, height); self.app.processEvents()
+            cards = [art.parentWidget() for art in p.effect_images.values()]
+            self.assertLessEqual(abs(cards[0].width() - cards[1].width()), 1)
+            for card in cards:
+                description = card.findChild(QLabel, 'caption')
+                self.assertTrue(description.alignment() & Qt.AlignTop)
+                self.assertGreaterEqual(description.height() - description.contentsMargins().top(),
+                                        description.heightForWidth(description.width()) - description.contentsMargins().top())
+                self.assertTrue(card.rect().contains(description.geometry()))
+            titles = [c.findChild(QLabel, 'effectTitle') for c in cards]
+            self.assertEqual(titles[0].y(), titles[1].y())
+            descriptions = [c.findChild(QLabel, 'caption') for c in cards]
+            self.assertEqual(descriptions[0].y(), descriptions[1].y())
+
+    def test_effect_illustrations_are_decorative_and_follow_switch_state(self):
+        p = self.panel
+        p.show(); self.app.processEvents()
+        for key in ('kSet_SpkVirtualSurroundState', 'kSet_CompressorState'):
+            art = p.effect_images[key]
+            self.assertTrue(art.testAttribute(Qt.WA_TransparentForMouseEvents))
+            self.assertEqual(art.focusPolicy(), Qt.NoFocus)
+            for theme in PALETTES:
+                index = p.theme_combo.findData(theme)
+                p.theme_combo.setCurrentIndex(index); p.theme_combo.activated.emit(index)
+                switch = p.switches[key]
+                switch.setChecked(True)
+                enabled = art.grab().toImage()
+                QTest.keyClick(switch, Qt.Key_Space); self.drain(p)
+                self.assertEqual(p.backend.data['settings'][key]['value'], 0)
+                disabled = art.grab().toImage()
+                self.assertNotEqual(enabled, disabled)
+                self.assertEqual(disabled, art.grab().toImage(), 'Artwork must not animate as a fake meter')
+                QTest.keyClick(switch, Qt.Key_Space); self.drain(p)
+                self.assertEqual(p.backend.data['settings'][key]['value'], 1)
+                art.setEnabled(False)
+                self.assertNotEqual(enabled, art.grab().toImage())
+                art.setEnabled(True)
+
     def test_theme_selection_repaints_entire_ui_and_survives_restart(self):
         p = self.panel
         self.assertTrue(hasattr(p, 'theme_combo'), 'Settings needs an Appearance / Color Theme selector')

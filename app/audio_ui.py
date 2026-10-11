@@ -93,17 +93,69 @@ class SpacedToolButton(Themed, QToolButton):
             p.fillRect(1, self.height() - 3, self.width() - 2, 2, QColor(color))
 
 
-class EffectArt(Themed, QLabel):
-    def __init__(self, switch, on, off):
-        super().__init__(); self.switch = switch; self.on = on; self.off = off
-        self.setFixedSize(88, 64); switch.toggled.connect(self.update)
+class EffectArt(Themed, QWidget):
+    """Static explanatory artwork, never a meter or measured audio signal."""
+    def __init__(self, switch, kind):
+        super().__init__(); self.switch = switch; self.kind = kind
+        self.setFixedSize(148, 82)
+        self.setAttribute(Qt.WA_TransparentForMouseEvents)
+        self.setFocusPolicy(Qt.NoFocus)
+        switch.toggled.connect(self.update)
 
     def paintEvent(self, event):
-        color = self.tokens['accent'] if self.switch.isChecked() and self.isEnabled() else self.tokens['muted']
-        image = tinted(asset(self.on if self.switch.isChecked() else self.off), color)
-        image = image.scaled(self.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        painter = QPainter(self)
-        painter.drawPixmap((self.width()-image.width())//2, (self.height()-image.height())//2, image)
+        t = self.tokens
+        p = QPainter(self); p.setRenderHint(QPainter.Antialiasing)
+        p.scale(self.width() / 148, self.height() / 82)
+        active = self.switch.isChecked() and self.switch.isEnabled() and self.isEnabled()
+        accent = QColor(t['accent'] if active else t['muted'])
+        ink = QColor(t['secondary'] if active else t['muted'])
+        p.setOpacity(1.0 if active else 0.32)
+        if self.kind == 'surround':
+            # Ellipses establish spatial depth around a listener, not a radar.
+            p.setBrush(Qt.NoBrush)
+            for rect, alpha in ((QRectF(12, 23, 124, 48), 65),
+                                (QRectF(25, 30, 98, 34), 120),
+                                (QRectF(39, 37, 70, 21), 200)):
+                wave = QColor(accent); wave.setAlpha(alpha)
+                p.setPen(QPen(wave, 1.4)); p.drawEllipse(rect)
+            for x in (10, 116):
+                p.setPen(QPen(ink, 1.5)); p.setBrush(QColor(t['surface']))
+                p.drawRoundedRect(QRectF(x, 19, 22, 39), 4, 4)
+                p.setPen(QPen(accent, 1.4)); p.setBrush(Qt.NoBrush)
+                p.drawEllipse(QPointF(x + 11, 42), 6, 6)
+                p.setBrush(ink); p.setPen(Qt.NoPen)
+                p.drawEllipse(QPointF(x + 11, 28), 2, 2)
+                p.setPen(QPen(ink, 1.5)); p.drawLine(QPointF(x + 4, 62), QPointF(x + 18, 62))
+            torso = QPainterPath(QPointF(54, 62))
+            torso.cubicTo(54, 48, 62, 45, 74, 45)
+            torso.cubicTo(86, 45, 94, 48, 94, 62)
+            torso.quadTo(74, 71, 54, 62)
+            p.setPen(QPen(accent, 1.6)); p.setBrush(QColor(t['surface']))
+            p.drawPath(torso)
+            p.setBrush(accent); p.setPen(Qt.NoPen)
+            p.drawEllipse(QRectF(65, 24, 18, 22))
+            p.setBrush(Qt.NoBrush); p.setPen(QPen(ink, 2.2, Qt.SolidLine, Qt.RoundCap))
+            p.drawArc(QRectF(61, 19, 26, 29), 0, 180 * 16)
+            p.drawLine(QPointF(61, 32), QPointF(61, 39))
+            p.drawLine(QPointF(87, 32), QPointF(87, 39))
+        else:
+            # One continuous, deliberately fixed waveform settles left to right.
+            import math
+            p.setPen(QPen(QColor(t['border']), 1))
+            p.drawLine(QPointF(5, 41), QPointF(143, 41))
+            for left, right, color in ((5, 74, ink), (74, 143, accent)):
+                wave = QPainterPath()
+                for x in range(left, right + 1):
+                    amplitude = 12 if x >= 83 else 12 + (1 - x / 83) * (10 + 9 * math.sin(x * 0.13))
+                    y = 41 + amplitude * math.sin((x - 5) * math.pi / 9)
+                    if x == left: wave.moveTo(x, y)
+                    else: wave.lineTo(x, y)
+                p.setPen(QPen(color, 2, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+                p.drawPath(wave)
+            guide = QColor(accent); guide.setAlpha(80)
+            p.setPen(QPen(guide, 1, Qt.DashLine))
+            for y in (25, 57): p.drawLine(QPointF(88, y), QPointF(143, y))
+        p.end()
 
 
 class EqualizerCurve(Themed, QWidget):
@@ -242,13 +294,22 @@ def build_panel(p):
     p.mute = Toggle('静音'); p.mute.clicked.connect(lambda checked: p.submit(lambda: p.backend.mute(checked), 'state', 'muted', checked)); mute_row.addWidget(p.mute)
     volume.addLayout(mute_row); tuning.addWidget(output, 1); controls.addLayout(tuning, 3)
     upper = QHBoxLayout(); upper.setSpacing(10)
-    for title, key, description, on, off in (
-        ('环绕声', 'kSet_SpkVirtualSurroundState', '让声音从四周传来，带来更有空间感的聆听体验。', 'SoundSurroundOn255x255.png', 'SoundSurroundOff255x255.png'),
-        ('音量稳定器', 'kSet_CompressorState', '保持音量均衡，减少声音忽大忽小。', 'VolumeStabiliserOn80x60.png', 'VolumeStabilizerOff80x60.png')):
-        frame, column = panel_layout(); row = QHBoxLayout(); row.addWidget(label(title, 'effectTitle'), 1)
-        switch = p.effect_switch(key, '启用'+title); row.addWidget(switch); column.addLayout(row)
-        row = QHBoxLayout(); art = EffectArt(switch, on, off); row.addWidget(art); row.addSpacing(10)
-        row.addWidget(label(description, 'caption', True), 1); column.addLayout(row)
+    for title, key, description, kind in (
+        ('环绕声', 'kSet_SpkVirtualSurroundState', '让声音从四周传来，带来更有空间感的聆听体验。', 'surround'),
+        ('音量稳定器', 'kSet_CompressorState', '保持音量均衡，减少声音忽大忽小。', 'stabilizer')):
+        frame, column = panel_layout()
+        column.setContentsMargins(18, 12, 18, 14); column.setSpacing(2)
+        row = QHBoxLayout(); row.setSpacing(8)
+        row.addWidget(label(title, 'effectTitle'), 1)
+        switch = p.effect_switch(key, '启用'+title); row.addWidget(switch)
+        column.addLayout(row)
+        row = QHBoxLayout(); row.setSpacing(16)
+        art = EffectArt(switch, kind); row.addWidget(art, 0, Qt.AlignVCenter)
+        description_label = label(description, 'caption', True)
+        description_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        description_label.setContentsMargins(0, 16, 0, 0)
+        row.addWidget(description_label, 1)
+        column.addLayout(row, 1)
         p.effect_images[key] = art; upper.addWidget(frame, 1)
     controls.addLayout(upper, 1)
     lower = QHBoxLayout(); lower.setSpacing(10)
