@@ -35,6 +35,89 @@ PALETTES = {
 }
 
 
+# Exact PIL pixel samples, left-to-right then top-to-bottom in the supplied image.
+SOURCE_PALETTES = {
+    'ocean-sand': ('#086288', '#4d8dba', '#97d7ff', '#ffefc4'),
+    'citrus-grove': ('#d98327', '#ece8af', '#4a943e', '#186049'),
+    'marigold-chili': ('#4f7d32', '#ffd16a', '#f5b52e', '#d9361e'),
+    'blush-sage': ('#f6e2e9', '#fefaf3', '#b8cfb3', '#84a282'),
+    'coral-mint': ('#de7272', '#ffca88', '#fff6a9', '#b4e4d6'),
+    'amber-espresso': ('#fef3e2', '#f4ae52', '#d4621a', '#2a1a0e'),
+    'lagoon-lemon': ('#287a74', '#55a9a0', '#aeeed3', '#fff8b0'),
+    'aqua-papaya': ('#8ad6d1', '#359fa0', '#fff0c5', '#ff8c52'),
+    'woodland-sage': ('#5c7057', '#89a482', '#acc5a6', '#d1edd3'),
+    'honey-olive': ('#fcf0da', '#aeac78', '#f2c46a', '#4c4541'),
+    'terracotta-peach': ('#a14646', '#da6556', '#eb895b', '#fdb773'),
+    'orchid-petal': ('#8e1ea2', '#c654c3', '#ed96d7', '#ffc0de'),
+}
+
+
+def _mix(color, target, amount):
+    channels = [round(int(color[i:i+2], 16) * (1 - amount) +
+                      int(target[i:i+2], 16) * amount) for i in (1, 3, 5)]
+    return '#%02x%02x%02x' % tuple(channels)
+
+
+def _luminance(color):
+    rgb = [int(color[i:i+2], 16) / 255 for i in (1, 3, 5)]
+    return sum(weight * (v / 12.92 if v <= .04045 else ((v + .055) / 1.055) ** 2.4)
+               for weight, v in zip((.2126, .7152, .0722), rgb))
+
+
+def _contrast(first, second):
+    low, high = sorted((_luminance(first), _luminance(second)))
+    return (high + .05) / (low + .05)
+
+
+def _readable(color, backgrounds, minimum=4.6):
+    """Retain source hue, moving only as far as needed for the actual surfaces."""
+    target = max(('#000000', '#ffffff'),
+                 key=lambda value: min(_contrast(value, bg) for bg in backgrounds))
+    for step in range(101):
+        candidate = _mix(color, target, step / 100)
+        if min(_contrast(candidate, bg) for bg in backgrounds) >= minimum:
+            return candidate
+    return target
+
+
+def _source_theme(key, colors):
+    # The supplied swatches ARE the large opaque fills, not a tint suggestion.
+    # Light content and a contrasting sidebar keep hue while scoping readable ink.
+    nav, inset, surface, root = sorted(colors, key=_luminance)
+    selected = nav
+    if key == 'marigold-chili':
+        # Chili red needs its own light foreground, rather than black body text.
+        selected = inset
+        inset = _mix(root, '#ffffff', .24)
+    hover = _mix(inset, '#ffffff', .12)
+    bases = (root, surface, inset, hover)
+    accent = _readable(nav, bases)
+    text = _readable(_mix(nav, '#000000', .75), bases)
+    secondary = _readable(_mix(nav, '#000000', .35), bases)
+    nav_hover = _mix(nav, '#000000', .12)
+    nav_bases = (nav, nav_hover)
+    nav_text = _readable(root, nav_bases)
+    nav_secondary = _readable(surface, nav_bases)
+    return dict(
+        name=key.replace('-', ' ').title(), root=root, nav=nav, surface=surface,
+        inset=inset, hover=hover, border=_mix(nav, surface, .35),
+        text=text, secondary=secondary, muted=_readable(nav, bases),
+        accent=accent, accent_hover=_mix(accent, '#000000', .16),
+        on_accent=_readable(root, (accent,)), track=_mix(nav, inset, .22),
+        thumb=root, focus=accent, success=_readable('#256a4a', bases),
+        error=_readable('#a7243f', bases), selected=selected,
+        on_selected=_readable(root, (selected,)), nav_text=nav_text,
+        nav_secondary=nav_secondary, nav_muted=nav_secondary,
+        nav_accent=_readable(surface, nav_bases), nav_hover=nav_hover,
+        nav_focus=nav_text, nav_selected=surface,
+        on_nav_selected=_readable(nav, (surface,)),
+    )
+
+
+PALETTES.update({key: _source_theme(key, colors)
+                 for key, colors in SOURCE_PALETTES.items()})
+
+
 class ThemePreference:
     def __init__(self, path):
         self.settings = QSettings(str(path), QSettings.IniFormat)
@@ -54,9 +137,16 @@ class ThemePreference:
 
 
 def tokens_for(widget):
+    navigation = False
     while widget is not None:
+        navigation |= widget.objectName() in ('navigation', 'titleBar')
         if hasattr(widget, 'theme_tokens'):
-            return widget.theme_tokens
+            tokens = widget.theme_tokens
+            if navigation and 'nav_text' in tokens:
+                return dict(tokens, text=tokens['nav_text'], secondary=tokens['nav_secondary'],
+                            muted=tokens['nav_muted'], accent=tokens['nav_accent'],
+                            focus=tokens['nav_focus'], on_selected=tokens['on_nav_selected'])
+            return tokens
         widget = widget.parentWidget()
     return PALETTES['rose']
 
@@ -119,6 +209,30 @@ def stylesheet(t):
     QCheckBox:disabled {{ color: {t['muted']}; }}
     QCheckBox::indicator {{ width: 16px; height: 16px; border: 1px solid {t['track']}; background: {t['surface']}; border-radius: 3px; }}
     QCheckBox::indicator:checked {{ background: {t['accent']}; border-color: {t['accent']}; }}
+    """ + _surface_styles(t)
+
+
+def _surface_styles(t):
+    # Scoped ink lets source-colored dark chrome coexist with light content.
+    # No extension is applied to the original four themes.
+    if 'nav_text' not in t:
+        return ''
+    return f"""
+    QFrame#navigation QLabel, QWidget#titleBar QLabel {{ color: {t['nav_text']}; }}
+    QFrame#navigation QLabel#muted, QWidget#titleBar QLabel#windowTitle {{ color: {t['nav_secondary']}; }}
+    QFrame#navigation QLabel#brand {{ color: {t['nav_accent']}; }}
+    QToolButton#navigationButton {{ color: {t['nav_secondary']}; }}
+    QToolButton#navigationButton:hover {{ background: {t['nav_hover']}; }}
+    QToolButton#navigationButton:checked, QToolButton#navigationButton:checked:hover {{ background: {t['nav_selected']}; color: {t['on_nav_selected']}; }}
+    QToolButton#navigationButton:focus {{ border-color: {t['nav_focus']}; }}
+    QToolButton#profileButton:checked, QToolButton#profileButton:checked:hover {{ background: {t['selected']}; color: {t['on_selected']}; }}
+    QToolButton#profileButton:disabled {{ background: {t['inset']}; color: {t['muted']}; }}
+    QToolButton#windowButton, QToolButton#closeWindow {{ color: {t['nav_text']}; }}
+    QToolButton#windowButton:hover {{ background: {t['nav_hover']}; }}
+    QToolButton#windowButton:focus, QToolButton#closeWindow:focus {{ border-color: {t['nav_focus']}; }}
+    QToolButton#closeWindow:hover {{ background: {t['error']}; color: {t['root']}; }}
+    QComboBox QAbstractItemView {{ selection-background-color: {t['selected']}; selection-color: {t['on_selected']}; }}
+    QCheckBox::indicator:disabled {{ background: {t['inset']}; border-color: {t['muted']}; }}
     """
 
 
@@ -133,6 +247,8 @@ def apply_theme(window, choice):
              'ToolTipText': 'text', 'PlaceholderText': 'muted', 'Link': 'accent',
              'Light': 'surface', 'Midlight': 'inset', 'Mid': 'border',
              'Dark': 'track', 'Shadow': 'border'}
+    if 'selected' in t:
+        roles.update(Highlight='selected', HighlightedText='on_selected')
     for group in (QPalette.Active, QPalette.Inactive, QPalette.Disabled):
         for role, token in roles.items():
             if group == QPalette.Disabled and token == 'text': token = 'muted'
@@ -140,6 +256,14 @@ def apply_theme(window, choice):
     window.setPalette(palette)
     window.setStyleSheet(stylesheet(t))
     for widget in window.findChildren(QWidget):
-        widget.setPalette(palette)
+        scoped = tokens_for(widget)
+        if scoped is not t and 'nav_text' in t:
+            chrome_palette = QPalette(palette)
+            for group in (QPalette.Active, QPalette.Inactive, QPalette.Disabled):
+                for role in (QPalette.WindowText, QPalette.ButtonText, QPalette.Text):
+                    chrome_palette.setColor(group, role, QColor(scoped['text']))
+            widget.setPalette(chrome_palette)
+        else:
+            widget.setPalette(palette)
         widget.update()
     window.update()

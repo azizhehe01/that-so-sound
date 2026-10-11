@@ -100,7 +100,9 @@ class RedesignedUITest(unittest.TestCase):
         p = self.panel
         self.assertTrue(hasattr(p, 'theme_combo'), 'Settings needs an Appearance / Color Theme selector')
         p.show(); p.show_preferences(); self.app.processEvents()
-        self.assertEqual(p.theme_combo.count(), 4)
+        self.assertEqual(p.theme_combo.count(), 16)
+        for index in range(p.theme_combo.count()):
+            self.assertFalse(p.theme_combo.itemIcon(index).isNull(), 'Every theme needs a palette preview')
         p.translations.select('de')
         for key, tokens in PALETTES.items():
             index = p.theme_combo.findData(key)
@@ -115,9 +117,52 @@ class RedesignedUITest(unittest.TestCase):
             self.assertEqual(QSettings(str(self.data / 'interface.ini'), QSettings.IniFormat).value('language'), 'de')
         second = self.new_panel()
         try:
-            self.assertEqual(second.theme_preference.choice, 'light')
+            self.assertEqual(second.theme_preference.choice, list(PALETTES)[-1])
             self.assertEqual(second.translations.choice, 'de')
         finally: second.close(); second.deleteLater()
+
+    def test_source_surface_pixels_are_opaque_and_logo_is_unchanged(self):
+        from themes import SOURCE_PALETTES
+        from PySide6.QtWidgets import QFrame, QLabel
+        p = self.panel; p.show(); self.app.processEvents()
+        nav = p.findChild(QFrame, 'navigation')
+        logo = next(label for label in nav.findChildren(QLabel) if not label.pixmap().isNull())
+        original_logo = logo.pixmap().toImage()
+        for key in SOURCE_PALETTES:
+            index = p.theme_combo.findData(key)
+            p.theme_combo.setCurrentIndex(index); p.theme_combo.activated.emit(index)
+            self.app.processEvents()
+            for widget, point, role in ((p.controls, (1, 1), 'root'),
+                                         (nav, (nav.width()-5, 250), 'nav'),
+                                         (p.equalizer, (5, 65), 'surface')):
+                color = widget.grab().toImage().pixelColor(*point)
+                self.assertEqual(color.name(), PALETTES[key][role])
+                self.assertEqual(color.alpha(), 255)
+            self.assertEqual(logo.pixmap().toImage(), original_logo)
+
+    def test_dark_chrome_has_its_own_readable_native_palette(self):
+        from themes import SOURCE_PALETTES
+        from window_frame import WindowButton
+        p = self.panel
+        for key in SOURCE_PALETTES:
+            index = p.theme_combo.findData(key)
+            p.theme_combo.setCurrentIndex(index); p.theme_combo.activated.emit(index)
+            for button in p.findChildren(WindowButton):
+                self.assertEqual(button.palette().color(QPalette.ButtonText).name(), PALETTES[key]['nav_text'])
+            self.assertEqual(p.settings_navigation.tokens['secondary'], PALETTES[key]['nav_secondary'])
+
+    def test_palette_swatches_preserve_source_colors_even_when_selected(self):
+        from themes import SOURCE_PALETTES
+        from PySide6.QtGui import QIcon
+        p = self.panel
+        self.assertEqual([p.theme_combo.itemData(i) for i in range(4, 16)], list(SOURCE_PALETTES))
+        for key, colors in SOURCE_PALETTES.items():
+            icon = p.theme_combo.itemIcon(p.theme_combo.findData(key))
+            for mode in (QIcon.Normal, QIcon.Selected, QIcon.Disabled):
+                image = icon.pixmap(80, 20, mode).toImage()
+                for i, color in enumerate(colors):
+                    self.assertEqual(image.pixelColor(i * 20 + 10, 10).name(), color.lower())
+                    self.assertEqual(image.pixelColor(i * 20 + 10, 10).alpha(), 255)
 
     def test_theme_is_available_offline_and_never_writes_audio(self):
         import copy

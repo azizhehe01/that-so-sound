@@ -80,7 +80,7 @@ class SpacedToolButton(Themed, QToolButton):
         option.text = ''; option.icon = QIcon()
         p = QStylePainter(self); p.drawComplexControl(QStyle.CC_ToolButton, option)
         t = self.tokens
-        color = t['muted'] if not self.isEnabled() else t['accent'] if self.isChecked() else t['secondary']
+        color = t['muted'] if not self.isEnabled() else t.get('on_selected', t['accent']) if self.isChecked() else t['secondary']
         icon = tinted(self.icon().pixmap(self.iconSize()), color)
         width = self.iconSize().width()
         # Profiles center their icon/text group; sidebar labels remain left aligned.
@@ -334,6 +334,19 @@ def build_panel(p):
     p.status = label('正在连接音效服务…', 'status', True); foot.addWidget(p.status, 1); page.addWidget(footer)
 
 
+def palette_preview(colors):
+    """Opaque source swatches, deliberately untinted in every theme."""
+    pixmap = QPixmap(80, 20)
+    painter = QPainter(pixmap)
+    for index, color in enumerate(colors):
+        painter.fillRect(index * 20, 0, 20, 20, QColor(color))
+    painter.end()
+    icon = QIcon()
+    for mode in (QIcon.Normal, QIcon.Disabled, QIcon.Active, QIcon.Selected):
+        icon.addPixmap(pixmap, mode)
+    return icon
+
+
 def build_preferences(p):
     p.preferences = QDialog(p); p.preferences.setWindowTitle('设置'); p.preferences.setMinimumWidth(510)
     outer = QVBoxLayout(p.preferences); outer.setContentsMargins(1, 1, 1, 1); outer.setSpacing(0)
@@ -341,7 +354,12 @@ def build_preferences(p):
     layout.addWidget(label('Appearance', 'effectTitle'))
     row = QHBoxLayout(); theme_label = label('Color Theme'); row.addWidget(theme_label)
     p.theme_combo = QComboBox(); p.theme_combo.setAccessibleName('Color Theme'); theme_label.setBuddy(p.theme_combo)
-    for key, tokens in PALETTES.items(): p.theme_combo.addItem(tokens['name'], key)
+    from themes import SOURCE_PALETTES
+    p.theme_combo.setIconSize(QSize(80, 20))
+    p.theme_combo.setMaxVisibleItems(16)
+    for key, tokens in PALETTES.items():
+        colors = SOURCE_PALETTES.get(key, tuple(tokens[role] for role in ('root', 'nav', 'surface', 'accent')))
+        p.theme_combo.addItem(palette_preview(colors), tokens['name'], key)
     p.theme_combo.setCurrentIndex(p.theme_combo.findData(p.theme_preference.choice))
     p.theme_combo.activated.connect(p.change_theme); row.addWidget(p.theme_combo, 1); layout.addLayout(row)
     row = QHBoxLayout(); language_label = label('语言'); row.addWidget(language_label)

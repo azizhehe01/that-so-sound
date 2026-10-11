@@ -16,13 +16,14 @@ class ThemePersistenceTest(unittest.TestCase):
             path = Path(directory) / 'interface.ini'
             language = QSettings(str(path), QSettings.IniFormat)
             language.setValue('language', 'de'); language.sync()
-            self.assertEqual(list(themes.PALETTES), ['rose', 'midnight-rose', 'dark', 'light'])
+            self.assertEqual(list(themes.PALETTES)[:4], ['rose', 'midnight-rose', 'dark', 'light'])
+            self.assertEqual(len(themes.PALETTES), 16)
             for name in themes.PALETTES:
                 themes.ThemePreference(path).select(name)
                 self.assertEqual(themes.ThemePreference(path).choice, name)
                 self.assertEqual(QSettings(str(path), QSettings.IniFormat).value('language'), 'de')
             language.setValue('language', 'ja'); language.sync()
-            self.assertEqual(themes.ThemePreference(path).choice, 'light')
+            self.assertEqual(themes.ThemePreference(path).choice, list(themes.PALETTES)[-1])
 
     def test_all_text_roles_meet_aa_on_all_surfaces(self):
         import themes
@@ -37,7 +38,8 @@ class ThemePersistenceTest(unittest.TestCase):
             for foreground in ('text', 'secondary', 'muted', 'accent'):
                 for surface in ('root', 'nav', 'surface', 'inset', 'hover'):
                     with self.subTest(theme=name, foreground=foreground, surface=surface):
-                        self.assertGreaterEqual(contrast(tokens[foreground], tokens[surface]), 4.5)
+                        role = ('nav_' + foreground) if surface == 'nav' and 'nav_text' in tokens else foreground
+                        self.assertGreaterEqual(contrast(tokens[role], tokens[surface]), 4.5)
             self.assertGreaterEqual(contrast(tokens['on_accent'], tokens['accent']), 4.5)
 
     def test_invalid_saved_theme_uses_rose_without_rewriting_preferences(self):
