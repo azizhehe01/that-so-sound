@@ -23,20 +23,67 @@
 
 ## 📸 Tampilan Aplikasi (Preview)
 
-Ini dia tampilan **That's So Sound (Gracie Abrams Edition)** di desktop Linux! Sekarang hadir dengan **4 pilihan tema warna** (Rose, Midnight Rose, Dark, dan Light) untuk menyesuaikan mood lo:
+Ini dia tampilan **That's So Sound (Gracie Abrams Edition)** di desktop Linux! Sekarang hadir dengan **16 pilihan tema warna** (4 tema klasik & 12 tema palette modern) untuk menyesuaikan mood dan estetika desktop lo:
 
-### 🌹 Rose & 🌃 Midnight Rose
+### 🌹 Tema Klasik (Original 4)
 <div align="center">
   <img src="docs/rose.png" alt="Rose Theme" width="49%" style="border-radius: 14px; border: 1px solid #3a224a;" />
   <img src="docs/midnight%20rose.png" alt="Midnight Rose Theme" width="49%" style="border-radius: 14px; border: 1px solid #3a224a;" />
 </div>
-
-### 🌙 Dark & ☀️ Light
-<div align="center">
+<div align="center" style="margin-top: 10px;">
   <img src="docs/dark.png" alt="Dark Theme" width="49%" style="border-radius: 14px; border: 1px solid #3a224a;" />
   <img src="docs/light.png" alt="Light Theme" width="49%" style="border-radius: 14px; border: 1px solid #3a224a;" />
-  <br/><br/>
-  <em>Tampilan panel That's So Sound: Equalizer, Bass/Treble/Voice sliders, Virtual Surround, dan profil Music aktif dalam berbagai tema.</em>
+</div>
+
+<br/>
+
+### 🎨 12 Palette Themes Baru
+
+<details open>
+<summary><b>✨ Galeri 12 Tema Warna Baru (Klik untuk Tutup/Buka)</b></summary>
+<br/>
+
+#### 🌊 Ocean Sand & 🍊 Citrus Grove
+<div align="center">
+  <img src="docs/ocean%20sand.png" alt="Ocean Sand Theme" width="49%" style="border-radius: 14px; border: 1px solid #3a224a;" />
+  <img src="docs/citrus%20grove.png" alt="Citrus Grove Theme" width="49%" style="border-radius: 14px; border: 1px solid #3a224a;" />
+</div>
+
+#### 🌶️ Marigold Chili & 🌿 Blush Sage
+<div align="center">
+  <img src="docs/marigold%20chili.png" alt="Marigold Chili Theme" width="49%" style="border-radius: 14px; border: 1px solid #3a224a;" />
+  <img src="docs/blush%20sage.png" alt="Blush Sage Theme" width="49%" style="border-radius: 14px; border: 1px solid #3a224a;" />
+</div>
+
+#### 🪸 Coral Mint & ☕ Amber Espresso
+<div align="center">
+  <img src="docs/coral%20mint.png" alt="Coral Mint Theme" width="49%" style="border-radius: 14px; border: 1px solid #3a224a;" />
+  <img src="docs/amber%20espreso.png" alt="Amber Espresso Theme" width="49%" style="border-radius: 14px; border: 1px solid #3a224a;" />
+</div>
+
+#### 🍋 Lagoon Lemon & 🥭 Aqua Papaya
+<div align="center">
+  <img src="docs/lagoon%20lemon.png" alt="Lagoon Lemon Theme" width="49%" style="border-radius: 14px; border: 1px solid #3a224a;" />
+  <img src="docs/aqua%20papaya.png" alt="Aqua Papaya Theme" width="49%" style="border-radius: 14px; border: 1px solid #3a224a;" />
+</div>
+
+#### 🌲 Woodland Sage & 🫒 Honey Olive
+<div align="center">
+  <img src="docs/woodland%20sage.png" alt="Woodland Sage Theme" width="49%" style="border-radius: 14px; border: 1px solid #3a224a;" />
+  <img src="docs/honey%20olive.png" alt="Honey Olive Theme" width="49%" style="border-radius: 14px; border: 1px solid #3a224a;" />
+</div>
+
+#### 🍑 Terracotta Peach & 🌸 Orchid Petal
+<div align="center">
+  <img src="docs/terracotta%20peach.png" alt="Terracotta Peach Theme" width="49%" style="border-radius: 14px; border: 1px solid #3a224a;" />
+  <img src="docs/orchild%20petal.png" alt="Orchid Petal Theme" width="49%" style="border-radius: 14px; border: 1px solid #3a224a;" />
+</div>
+
+</details>
+
+<div align="center">
+  <br/>
+  <em>Tampilan panel That's So Sound: Equalizer, Bass/Treble/Voice sliders, Virtual Surround, dan profil Music aktif dalam berbagai tema warna.</em>
 </div>
 
 ---
@@ -63,7 +110,7 @@ Pernah ga ngerasa speaker laptop lo di Linux suaranya **cempreng, tipis, pelan**
 | 🌐 **3D Virtual Surround** | Melebarkan soundstage speaker laptop lo biar serasa dengerin di ruangan luas. |
 | 🎚️ **Smart Volume Stabilizer** | Ngeratain volume otomatis biar telinga lo ga kaget pas ada suara jedag-jedug mendadak. |
 | 🎼 **10-Band Precision EQ** | Equalizer parametrik lengkap dari **31 Hz** sampai **16 kHz** buat fine-tuning selera telinga lo. |
-| 🎨 **Custom Themes** | Pilihan 4 tema warna: *Rose*, *Midnight Rose*, *Dark*, dan *Light* untuk menyesuaikan UI dengan mood lo. |
+| 🎨 **16 Custom Themes** | Total **16 pilihan tema warna**: 4 klasik (*Rose*, *Midnight Rose*, *Dark*, *Light*) + 12 modern palette (*Ocean Sand*, *Citrus Grove*, *Marigold Chili*, *Blush Sage*, *Coral Mint*, *Amber Espresso*, *Lagoon Lemon*, *Aqua Papaya*, *Woodland Sage*, *Honey Olive*, *Terracotta Peach*, *Orchid Petal*). |
 
 ---
 
