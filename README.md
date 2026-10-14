@@ -21,7 +21,7 @@
 
 ---
 
-## 📸 Tampilan Aplikasi (Preview)
+## 📸 Tampilan Aplikasi (Preview) ..
 
 Ini dia tampilan **That's So Sound (Gracie Abrams Edition)** di desktop Linux! Sekarang hadir dengan **16 pilihan tema warna** (4 tema klasik & 12 tema palette modern) untuk menyesuaikan mood dan estetika desktop lo:
 
